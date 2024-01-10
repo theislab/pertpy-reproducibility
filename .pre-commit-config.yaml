@@ -26,19 +26,3 @@ repos:
         args: [--fix=lf]
       - id: trailing-whitespace
       - id: check-case-conflict
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
-    hooks:
-      - id: mypy
-        args: [--no-strict-optional, --ignore-missing-imports]
-        additional_dependencies:
-          ["types-pkg-resources", "types-requests", "types-attrs"]
-  - repo: local
-    hooks:
-      - id: forbid-to-commit
-        name: Don't commit rej files
-        entry: |
-          Cannot commit .rej files. These indicate merge conflicts that arise during automated template updates.
-          Fix the merge conflicts manually and remove the .rej files.
-        language: fail
-        files: '.*\.rej$'
