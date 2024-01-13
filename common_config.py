@@ -1,8 +1,11 @@
 import scanpy as sc
-import matplotlib.pyplot as plt
 
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = ["Arial", "Helvetica"]
+# plt.rcParams["font.family"] = "sans-serif"
+# plt.rcParams["font.sans-serif"] = ["Arial", "Helvetica"]
+
+pt_red = "red"
+pt_blue = "blue"
+pt_orange = "orange"
 
 
 def figure_journal_basic():
@@ -33,4 +36,4 @@ mhv68_pcls_ct_color_map = {}
 
 mcfarland_ct_color_map = {}
 
-repogle_ct_color_map = {}
+norman_ct_color_map = {}
