@@ -3,8 +3,8 @@ import scanpy as sc
 # plt.rcParams["font.family"] = "sans-serif"
 # plt.rcParams["font.sans-serif"] = ["Arial", "Helvetica"]
 
-pt_red = "red"
-pt_blue = "blue"
+pt_red = "#D2455E"
+pt_blue = "#34669A"
 pt_orange = "orange"
 
 
