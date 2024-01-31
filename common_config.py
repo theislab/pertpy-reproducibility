@@ -6,6 +6,7 @@ import scanpy as sc
 pt_blue = "#34669A"
 pt_red = "#D2455E"
 pt_orange = "#F37800"
+pt_gold = "#FFD700"
 
 
 def figure_journal_basic():
