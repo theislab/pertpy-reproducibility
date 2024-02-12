@@ -38,21 +38,8 @@ sccoda_model.run_nuts(sccoda_data, modality_key="coda_salm")
 # show results
 sccoda_model.summary(sccoda_data, modality_key="coda_salm")
 sccoda_model.credible_effects(sccoda_data, modality_key="coda_salm")
-# pt.pl.coda.effects_barplot(sccoda_data, modality_key="coda_salm", parameter="Final Parameter")
 sccoda_model.set_fdr(sccoda_data, modality_key="coda_salm", est_fdr=0.4)
 sccoda_model.summary(sccoda_data, modality_key="coda_salm")
-
-# saving result
-# path = "test"
-# sccoda_data.write_h5mu(path)
-# loading
-# sccoda_data_2 = mu.read_h5mu(path)
-# sccoda_model.summary(sccoda_data_2, modality_key="coda_salm")
-
-# test_model = pt.tl.Sccoda()
-# test_model.get_intercept_df(sccoda_data_2, modality_key="coda_salm")
-# test_model.get_effect_df(sccoda_data, modality_key="coda_salm")
-# sccoda_data["coda_salm"].varm["intercept_df"]
 
 ######################################### SECOND SCRIPT ##########################################
 
@@ -74,19 +61,6 @@ sccoda_data = sccoda_model.load(
 sccoda_data.mod["coda_salm"] = sccoda_data["coda"][
     sccoda_data["coda"].obs["condition"].isin(["Control", "Salmonella"])
 ].copy()
-# print(sccoda_data)
-
-# plot boxplots
-# pt.pl.coda.boxplots(sccoda_data, modality_key="coda", feature_name="condition", add_dots=True)
-# plt.show()
-
-# Stacked barplot for each sample
-# pt.pl.coda.stacked_barplot(sccoda_data, modality_key="coda", feature_name="samples")
-# plt.show()
-
-# Stacked barplot for the levels of "Condition"
-# pt.pl.coda.stacked_barplot(sccoda_data, modality_key="coda", feature_name="condition")
-# plt.show()
 
 # model all three diseases at once
 sccoda_data = sccoda_model.prepare(
@@ -129,17 +103,6 @@ sccoda_model.run_nuts(sccoda_data, modality_key="coda_salm")
 
 # extended summary
 sccoda_model.summary(sccoda_data, modality_key="coda_salm", hdi_prob=0.8, extended=True)
-
-# diagnostic plotting
-# salm_arviz = sccoda_model.make_arviz(sccoda_data, modality_key="coda_salm")
-# az.plot_trace(
-#     salm_arviz,
-#     divergences=False,
-#     var_names=["alpha", "beta"],
-#     coords={"cell_type": salm_arviz.posterior.coords["cell_type_nb"]},
-# )
-# plt.tight_layout()
-# plt.show()
 
 # Run scCODA with each cell type as the reference
 cell_types = sccoda_data["coda_salm"].var.index
