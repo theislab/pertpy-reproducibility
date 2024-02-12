@@ -37,9 +37,9 @@ latent_X = model.get_latent_representation()
 latent_adata = sc.AnnData(X=latent_X, obs=train_new.obs.copy())
 sc.pp.neighbors(latent_adata)
 sc.tl.umap(latent_adata)
-sc.pl.umap(latent_adata, color=['condition', 'cell_type'], wspace=0.4, frameon=False,
-        #    save='latentspace_batch32_klw000005_z100__100e.pdf'
-           )
+# sc.pl.umap(latent_adata, color=['condition', 'cell_type'], wspace=0.4, frameon=False,
+#         #    save='latentspace_batch32_klw000005_z100__100e.pdf'
+#            )
 
 # prediction
 pred, delta = model.predict(
@@ -56,40 +56,39 @@ eval_adata = ctrl_adata.concatenate(stim_adata, pred)
 
 # embedding all real and predicted cells in one PCA plot
 sc.tl.pca(eval_adata)
-sc.pl.pca(eval_adata, color="condition", frameon=False,
-        #    save='pred_stim_b32_klw000005_z100__100e.pdf'
-           )
+# sc.pl.pca(eval_adata, color="condition", frameon=False,
+#         #    save='pred_stim_b32_klw000005_z100__100e.pdf'
+#            )
 
 # mean correlation plot
 CD4T = train[train.obs["cell_type"] =="CD4T"]
-
 sc.tl.rank_genes_groups(CD4T, groupby="condition", method="wilcoxon")
 diff_genes = CD4T.uns["rank_genes_groups"]["names"]["stimulated"]
 print(diff_genes)
 
-r2_value = model.reg_mean_plot(
-    eval_adata,
-    axis_keys={"x": "pred", "y": "stimulated"},
-    # gene_list=diff_genes[:10],
-    labels={"x": "predicted", "y": "ground truth"},
-    # path_to_save="./reg_mean1.pdf",
-    show=True,
-    legend=False
-)
+# r2_value = model.reg_mean_plot(
+#     eval_adata,
+#     axis_keys={"x": "pred", "y": "stimulated"},
+#     # gene_list=diff_genes[:10],
+#     labels={"x": "predicted", "y": "ground truth"},
+#     # path_to_save="./reg_mean1.pdf",
+#     show=True,
+#     legend=False
+# )
 
-r2_value = model.reg_mean_plot(
-    eval_adata,
-    axis_keys={"x": "pred", "y": "stimulated"},
-    # gene_list=diff_genes[:10],
-    top_100_genes= diff_genes,
-    labels={"x": "predicted","y": "ground truth"},
-    # path_to_save="./reg_mean1.pdf",
-    show=True,
-    legend=False
-)
+# r2_value = model.reg_mean_plot(
+#     eval_adata,
+#     axis_keys={"x": "pred", "y": "stimulated"},
+#     # gene_list=diff_genes[:10],
+#     top_100_genes= diff_genes,
+#     labels={"x": "predicted","y": "ground truth"},
+#     # path_to_save="./reg_mean1.pdf",
+#     show=True,
+#     legend=False
+# )
 
 # violin plot for a specific gene
-sc.pl.violin(eval_adata, keys="ISG15", groupby="condition")
+# sc.pl.violin(eval_adata, keys="ISG15", groupby="condition")
 
 
 
