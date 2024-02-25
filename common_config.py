@@ -38,3 +38,16 @@ mhv68_pcls_ct_color_map = {}
 mcfarland_ct_color_map = {}
 
 norman_ct_color_map = {}
+
+norman_gene_program_color_map = {
+    "Control": "Blue",
+    "Erythroid": "Green",
+    "G1 cell cycle": pt_blue,
+    "G1 cell cycle (KNN imputed)": "#648fbd",
+    "Granulocyte apoptosis": "Pink",
+    "Megakaryocyte": "Purple",
+    "Pioneer factors": pt_red,
+    "Pioneer factors (KNN imputed)": "#db6b7f",
+    "Pro-growth": pt_orange,
+    "Unknown": "Grey",
+}
