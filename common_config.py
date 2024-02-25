@@ -49,5 +49,6 @@ norman_gene_program_color_map = {
     "Pioneer factors": pt_red,
     "Pioneer factors (KNN imputed)": "#db6b7f",
     "Pro-growth": pt_orange,
+    "Pro-growth (KNN imputed)": "#e8ac72",
     "Unknown": "Grey",
 }
