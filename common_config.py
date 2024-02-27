@@ -40,15 +40,15 @@ mcfarland_ct_color_map = {}
 norman_ct_color_map = {}
 
 norman_gene_program_color_map = {
-    "Control": "Blue",
+    "Control": pt_gold,
     "Erythroid": "Green",
     "G1 cell cycle": pt_blue,
     "G1 cell cycle (KNN imputed)": "#648fbd",
-    "Granulocyte apoptosis": "Pink",
+    "Granulocyte apoptosis": "LightSeaGreen",
     "Megakaryocyte": "Purple",
     "Pioneer factors": pt_red,
-    "Pioneer factors (KNN imputed)": "#db6b7f",
+    "Pioneer factors (KNN imputed)": "#e39aa8",
     "Pro-growth": pt_orange,
     "Pro-growth (KNN imputed)": "#e8ac72",
-    "Unknown": "Grey",
+    "Unknown": "LightGrey",
 }
