@@ -59,6 +59,7 @@ class GeneExpressionOmnibus:
 class ObsConstants:
     """Constants associated with obs in AnnData objects. These should primarily be used for loading scripts."""
 
+    # cellxgene
     ASSAY_ONTOLOGY_TERM_ID = "assay_ontology_term_id"
     SEX_ONTOLOGY_TERM_ID = "sex_ontology_term_id"
     ORGANISM_ONTOLOGY_TERM_ID = "organism_ontology_term_id"
@@ -71,7 +72,10 @@ class ObsConstants:
     )
     CELL_TYPE_ONTOLOGY_TERM_ID = "cell_type_ontology_term_id"
 
+    # pertpy schema
     TISSUE_TYPE = "tissue_type"
+    TREATMENT_TYPE = "unknown"
+    PERTURBATION_TYPE = "unknown"
     CONDITION_ID = "condition_id"
     SAMPLE_ID = "sample_id"
     DONOR_ID = "donor_id"
