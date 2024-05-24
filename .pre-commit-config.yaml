@@ -14,7 +14,7 @@ repos:
     rev: v0.1.6
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix, --unsafe-fixes]
+        args: [--fix, --exit-non-zero-on-fix, --unsafe-fixes, --ignore=E402]
       - id: ruff-format
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
