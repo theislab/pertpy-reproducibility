@@ -1,9 +1,7 @@
 import warnings
+
 warnings.filterwarnings("ignore")
-import matplotlib.pyplot as plt
-import mudata as mu
 import pertpy as pt
-import arviz as az
 import pandas as pd
 
 # load data
@@ -131,13 +129,3 @@ for ct in cell_types:
 results_cycle["pct_credible"] = results_cycle["times_credible"] / len(cell_types)
 results_cycle["is_credible"] = results_cycle["pct_credible"] > 0.5
 print(results_cycle)
-
-
-
-
-
-
-
-
-
-

@@ -1,20 +1,14 @@
-import importlib
 import warnings
+
 warnings.filterwarnings("ignore")
 import pandas as pd
-import pickle as pkl
-import arviz as az
-import anndata as ad
-import matplotlib.pyplot as plt
 
 from sccoda.util import comp_ana as mod
 from sccoda.util import cell_composition_data as dat
-from sccoda.util import data_visualization as viz
 
-import sccoda.datasets as scd
 
 # Load data
-cell_counts = pd.read_csv('/home/icb/zihe.zheng/data/haber_counts.csv')
+cell_counts = pd.read_csv("/home/icb/zihe.zheng/data/haber_counts.csv")
 
 # Convert data to anndata object
 data_all = dat.from_pandas(cell_counts, covariate_columns=["Mouse"])
@@ -25,7 +19,9 @@ data_all.obs["Condition"] = data_all.obs["Mouse"].str.replace(r"_[0-9]", "", reg
 data_salm = data_all[data_all.obs["Condition"].isin(["Control", "Salm"])]
 
 # run model
-model_salm = mod.CompositionalAnalysis(data_salm, formula="Condition", reference_cell_type="Goblet")
+model_salm = mod.CompositionalAnalysis(
+    data_salm, formula="Condition", reference_cell_type="Goblet"
+)
 # run mcmc
 sim_results = model_salm.sample_hmc()
 
@@ -38,7 +34,7 @@ sim_results.summary()
 ######################################### SECOND SCRIPT ##########################################
 
 # Load data
-cell_counts = pd.read_csv('/home/icb/zihe.zheng/data/haber_counts.csv')
+cell_counts = pd.read_csv("/home/icb/zihe.zheng/data/haber_counts.csv")
 
 # Convert data to anndata object
 data_all = dat.from_pandas(cell_counts, covariate_columns=["Mouse"])
@@ -50,22 +46,30 @@ data_all.obs["Condition"] = data_all.obs["Mouse"].str.replace(r"_[0-9]", "", reg
 data_salm = data_all[data_all.obs["Condition"].isin(["Control", "Salm"])].copy()
 
 # model all three diseases at once
-model_all = mod.CompositionalAnalysis(data_all, formula="Condition", reference_cell_type="Endocrine")
+model_all = mod.CompositionalAnalysis(
+    data_all, formula="Condition", reference_cell_type="Endocrine"
+)
 all_results = model_all.sample_hmc()
 all_results.summary()
 
 # Set salmonella infection as "default" category
-model_salm_switch_cond = mod.CompositionalAnalysis(data_salm, formula="C(Condition, Treatment('Salm'))", reference_cell_type="Goblet")
+model_salm_switch_cond = mod.CompositionalAnalysis(
+    data_salm, formula="C(Condition, Treatment('Salm'))", reference_cell_type="Goblet"
+)
 switch_results = model_salm_switch_cond.sample_hmc()
 switch_results.summary()
 
 # switching reference cell type
-model_salm_ref = mod.CompositionalAnalysis(data_salm, formula="Condition", reference_cell_type="Enterocyte")
+model_salm_ref = mod.CompositionalAnalysis(
+    data_salm, formula="Condition", reference_cell_type="Enterocyte"
+)
 reference_results = model_salm_ref.sample_hmc()
 reference_results.summary()
 
 ## result analysis
-model_salm = mod.CompositionalAnalysis(data_salm, formula="Condition", reference_cell_type="Goblet")
+model_salm = mod.CompositionalAnalysis(
+    data_salm, formula="Condition", reference_cell_type="Goblet"
+)
 salm_results = model_salm.sample_hmc(num_results=20000)
 
 # extended summary
@@ -79,7 +83,9 @@ for ct in cell_types:
     print(f"Reference: {ct}")
 
     # Run inference
-    model_temp = mod.CompositionalAnalysis(data_salm, formula="Condition", reference_cell_type=ct)
+    model_temp = mod.CompositionalAnalysis(
+        data_salm, formula="Condition", reference_cell_type=ct
+    )
     temp_results = model_temp.sample_hmc(num_results=20000)
 
     # Select credible effects
@@ -90,6 +96,6 @@ for ct in cell_types:
     results_cycle["times_credible"] += cred_eff.astype("int")
 
 # Calculate percentages
-results_cycle["pct_credible"] = results_cycle["times_credible"]/len(cell_types)
+results_cycle["pct_credible"] = results_cycle["times_credible"] / len(cell_types)
 results_cycle["is_credible"] = results_cycle["pct_credible"] > 0.5
 print(results_cycle)

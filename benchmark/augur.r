@@ -31,15 +31,7 @@ bhattacherjee_results_48 = calculate_auc(sc_sub2, n_threads = 16)
 # permute
 bhattacherjee_results_48_permute = calculate_auc(sc_sub2, n_threads = 16, augur_mode = 'permute', n_subsamples = 100)
 
-pvals = calculate_differential_prioritization(augur1 = bhattacherjee_results_15, 
-                                              augur2 = bhattacherjee_results_48, 
-                                              permuted1 = bhattacherjee_results_15_permute, 
+pvals = calculate_differential_prioritization(augur1 = bhattacherjee_results_15,
+                                              augur2 = bhattacherjee_results_48,
+                                              permuted1 = bhattacherjee_results_15_permute,
                                               permuted2 = bhattacherjee_results_48_permute)
-
-
-
-
-
-
-
-

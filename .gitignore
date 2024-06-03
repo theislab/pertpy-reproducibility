@@ -162,3 +162,5 @@ cython_debug/
 data
 lightning_logs
 *.h5ad
+*.pkl
+*.pickle

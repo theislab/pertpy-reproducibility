@@ -2,7 +2,6 @@
 
 import pertpy as pt
 import scanpy as sc
-from scvi import REGISTRY_KEYS
 
 # load data
 train = pt.dt.kang_2018()
@@ -10,7 +9,9 @@ train.raw = train.copy()
 sc.pp.normalize_total(train)
 
 # remove simulated CD4 cells for tutorial
-train_new = train[~((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "stim"))]
+train_new = train[
+    ~((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "stim"))
+]
 train_new = train_new.copy()
 
 # preprocessing data
@@ -35,12 +36,18 @@ sc.pp.neighbors(latent_adata)
 sc.tl.umap(latent_adata)
 
 # prediction
-pred, delta = model.predict(ctrl_key="ctrl", stim_key="stim", celltype_to_predict="CD4 T cells")
+pred, delta = model.predict(
+    ctrl_key="ctrl", stim_key="stim", celltype_to_predict="CD4 T cells"
+)
 pred.obs["label"] = "pred"
 
 ## evaluation of prediction
-ctrl_adata = train[((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "ctrl"))]
-stim_adata = train[((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "stim"))]
+ctrl_adata = train[
+    ((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "ctrl"))
+]
+stim_adata = train[
+    ((train.obs["cell_type"] == "CD4 T cells") & (train.obs["label"] == "stim"))
+]
 eval_adata = ctrl_adata.concatenate(stim_adata, pred)
 
 # embedding all real and predicted cells in one PCA plot
