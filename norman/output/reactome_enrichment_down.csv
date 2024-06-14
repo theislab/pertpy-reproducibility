@@ -1,0 +1,10 @@
+,source,native,name,p_value,significant,description,term_size,query_size,intersection_size,effective_domain_size,precision,recall,query,parents
+12,REAC,REAC:R-HSA-6798695,Neutrophil degranulation,1.35E-25,TRUE,Neutrophil degranulation,476,537,88,10842,0.163873,0.184874,query_1,[REAC:R-HSA-168249]
+29,REAC,REAC:R-HSA-168249,Innate Immune System,4.22E-18,TRUE,Innate Immune System,1101,537,127,10842,0.236499,0.11535,query_1,[REAC:R-HSA-168256]
+51,REAC,REAC:R-HSA-168256,Immune System,2.53E-14,TRUE,Immune System,2052,537,181,10842,0.337058,0.088207,query_1,[REAC:0000000]
+466,REAC,REAC:R-HSA-1236975,Antigen processing-Cross presentation,7.20E-03,TRUE,Antigen processing-Cross presentation,105,537,17,10842,0.031657,0.161905,query_1,[REAC:R-HSA-983169]
+532,REAC,REAC:R-HSA-109582,Hemostasis,2.05E-02,TRUE,Hemostasis,672,537,57,10842,0.106145,0.084821,query_1,[REAC:0000000]
+565,REAC,REAC:R-HSA-9755511,KEAP1-NFE2L2 pathway,3.10E-02,TRUE,KEAP1-NFE2L2 pathway,106,537,16,10842,0.029795,0.150943,query_1,[REAC:R-HSA-9711123]
+579,REAC,REAC:R-HSA-449147,Signaling by Interleukins,3.66E-02,TRUE,Signaling by Interleukins,471,537,43,10842,0.080074,0.091295,query_1,[REAC:R-HSA-1280215]
+589,REAC,REAC:R-HSA-2142700,Synthesis of Lipoxins (LX),4.16E-02,TRUE,Synthesis of Lipoxins (LX),6,537,4,10842,0.007449,0.666667,query_1,[REAC:R-HSA-9018678]
+605,REAC,REAC:R-HSA-6785807,Interleukin-4 and Interleukin-13 signaling,4.89E-02,TRUE,Interleukin-4 and Interleukin-13 signaling,110,537,16,10842,0.029795,0.145455,query_1,[REAC:R-HSA-449147]
