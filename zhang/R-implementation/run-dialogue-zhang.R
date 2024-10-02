@@ -55,3 +55,20 @@ R<-DIALOGUE.run(rA = rA, # list of cell.type objects
 
 
 # run dialogue with the same cell type ordering used in the original script 
+
+dlg_output <- readRDS("R_dlg_output/DLG.output_DLG_run.rds")
+dlg_1 <- readRDS("R_dlg_output/DIALOGUE1_DLG_run.rds")
+dlg_2 <- readRDS("R_dlg_output/DIALOGUE2_DLG_run.rds")
+dlg_full <- readRDS("R_dlg_output/DLG.full.output_DLG_run.rds")
+
+
+# either import the anndata and compare here
+# or do it in python
+
+# kind of inclined to just do it here...
+
+for (ct in names(dlg_1$cca.scores)) {
+  # get the matrix in dlg_1$cca.scores$ct 
+  # and save it
+  write.csv(dlg_1$cca.scores[[ct]], file = paste0("~/Documents/GitHub/pertpy-reproducibility/zhang/R-implementation/R_dlg_output/cca_output/", ct, "_cca_scores.csv"))
+}
