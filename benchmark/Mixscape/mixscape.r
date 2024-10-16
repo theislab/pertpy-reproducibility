@@ -1,4 +1,4 @@
-# Load packages.
+# Load packages
 library(Seurat)
 library(SeuratData)
 library(ggplot2)
@@ -7,12 +7,12 @@ library(scales)
 library(dplyr)
 library(reshape2)
 
-# load dataset
+# Load dataset
 InstallData(ds = "thp1.eccite")
 eccite <- LoadData(ds = "thp1.eccite")
 
-# preprocessing
-# protein.
+# Preprocessing
+# Protein
 eccite <- NormalizeData(
   object = eccite,
   assay = "ADT",
@@ -23,11 +23,11 @@ eccite <- NormalizeData(
 DefaultAssay(object = eccite) <- 'RNA'
 eccite <- NormalizeData(object = eccite) %>% FindVariableFeatures() %>% ScaleData()
 
-# gene expression-based cell clustering umap
+# Gene expression-based cell clustering umap
 eccite <- RunPCA(object = eccite)
 eccite <- RunUMAP(object = eccite, dims = 1:40)
 
-# mitigating confounding effects
+# Mitigating confounding effects
 eccite<- CalcPerturbSig(
   object = eccite,
   assay = "RNA",
@@ -41,17 +41,17 @@ eccite<- CalcPerturbSig(
   new.assay.name = "PRTB")
 
 # Prepare PRTB assay for dimensionality reduction:
-# Normalize data, find variable features and center data.
+# Normalize data, find variable features and center data
 DefaultAssay(object = eccite) <- 'PRTB'
 
-# Use variable features from RNA assay.
+# Use variable features from RNA assay
 VariableFeatures(object = eccite) <- VariableFeatures(object = eccite[["RNA"]])
 eccite <- ScaleData(object = eccite, do.scale = F, do.center = T)
 
-# Run PCA to reduce the dimensionality of the data.
+# Run PCA to reduce the dimensionality of the data
 eccite <- RunPCA(object = eccite, reduction.key = 'prtbpca', reduction.name = 'prtbpca')
 
-# Run UMAP to visualize clustering in 2-D.
+# Run UMAP to visualize clustering in 2D
 eccite <- RunUMAP(
   object = eccite,
   dims = 1:40,
@@ -59,7 +59,7 @@ eccite <- RunUMAP(
   reduction.key = 'prtbumap',
   reduction.name = 'prtbumap')
 
-# identiy cells with no detectable perturbation
+# identify cells with no detectable perturbation
 eccite <- RunMixscape(
   object = eccite,
   assay = "PRTB",
@@ -72,11 +72,11 @@ eccite <- RunMixscape(
   verbose = F,
   prtb.type = "KO")
 
-# Remove non-perturbed cells and run LDA to reduce the dimensionality of the data.
+# Remove non-perturbed cells
 Idents(eccite) <- "mixscape_class.global"
 sub <- subset(eccite, idents = c("KO", "NT"))
 
-# Run LDA.
+# run LDA to reduce the dimensionality of the data
 sub <- MixscapeLDA(
   object = sub,
   assay = "RNA",
@@ -86,3 +86,8 @@ sub <- MixscapeLDA(
   npcs = 10,
   logfc.threshold = 0.25,
   verbose = F)
+
+# Save results
+Convert(from = eccite, to = "anndata", filename = "output/mixscape_original.h5ad")
+#SaveH5Seurat(eccite, overwrite = TRUE)
+#Convert("pbmc3k.h5Seurat", dest = "h5ad")
