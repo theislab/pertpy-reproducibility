@@ -1,6 +1,7 @@
 # Load packages
 library(Seurat)
 library(SeuratData)
+library(SeuratDisk)
 library(ggplot2)
 library(patchwork)
 library(scales)
@@ -88,6 +89,17 @@ sub <- MixscapeLDA(
   verbose = F)
 
 # Save results
-Convert(from = eccite, to = "anndata", filename = "output/mixscape_original.h5ad")
-#SaveH5Seurat(eccite, overwrite = TRUE)
-#Convert("pbmc3k.h5Seurat", dest = "h5ad")
+SaveH5Seurat(eccite, filename = "output/mixscape_original.h5Seurat")
+Convert("output/mixscape_original.h5Seurat", dest = "h5ad")
+
+output_dir <- "gene_csv_files"
+dir.create(output_dir, showWarnings = FALSE)
+all_genes <- unique(eccite@meta.data$gene)
+for (gene in all_genes) {
+  # Get the dataframe for the current gene
+  df <- Tool(object = eccite, slot = "RunMixscape")[[gene]]
+  file_path <- file.path(output_dir, paste0(gene, ".csv"))
+  write.csv(df, file = file_path, row.names = TRUE)
+}
+zip_filename <- "gene_csv_files.zip"
+zip(zipfile = zip_filename, files = list.files(output_dir, full.names = TRUE))
