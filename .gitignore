@@ -164,3 +164,4 @@ lightning_logs
 *.h5ad
 *.pkl
 *.pickle
+.idea/
