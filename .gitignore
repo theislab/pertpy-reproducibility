@@ -164,3 +164,9 @@ lightning_logs
 *.h5ad
 *.pkl
 *.pickle
+.Rproj.user
+*.RProj
+*.RHistory
+*.RData
+*.DS_Store
+R_dlg_output/
