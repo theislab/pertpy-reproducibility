@@ -8,9 +8,49 @@ library(viridis)
 # load data
 data("sc_sim")
 
-# predict with select variance feature selection
-augur_v = calculate_auc(sc_sim, classifier = 'rf', subsample_size = 20, n_threads = 16, select_var = T)
-augur_v$AUC
+
+results_obj = calculate_auc(sc_sim, classifier = 'rf', subsample_size = 20, n_threads = 16, select_var = T)
+
+print('Not explicitly specifying augur mode')
+
+print(results_obj$AUC)  
+
+write.csv(results_obj$AUC, "data/augur_R_auc_results.csv", row.names = FALSE)
+saveRDS(results_obj, "data/augur_R_results.rds")
+
+# predict with select variance feature selection and default mode
+results_obj = calculate_auc(sc_sim, classifier = 'rf', subsample_size = 20, n_threads = 16, select_var = T, augur_mode = 'default')
+
+print('Default Results')
+
+print(results_obj$AUC)  
+
+write.csv(results_obj$AUC, "data/augur_R_auc_results_default.csv", row.names = FALSE)
+saveRDS(results_obj, "data/augur_R_results_default.rds")
+
+# predict with select variance feature selection and velocity mode
+results_obj = calculate_auc(sc_sim, classifier = 'rf', subsample_size = 20, n_threads = 16, select_var = T, augur_mode = 'velocity')
+
+print('Velocity Results')
+
+print(results_obj$AUC)  
+
+write.csv(results_obj$AUC, "data/augur_R_auc_results_velocity.csv", row.names = FALSE)
+saveRDS(results_obj, "data/augur_R_results_velocity.rds")
+
+
+# predict with select variance feature selection and permute mode
+results_obj = calculate_auc(sc_sim, classifier = 'rf', subsample_size = 20, n_threads = 16, select_var = T, augur_mode = 'permute')
+
+print('Permute Results')
+
+print(results_obj$AUC)  
+
+write.csv(results_obj$AUC, "data/augur_R_auc_results_permute.csv", row.names = FALSE)
+saveRDS(results_obj, "data/augur_R_results_permute.rds")
+
+
+
 
 # differntial prioritization
 # load data
