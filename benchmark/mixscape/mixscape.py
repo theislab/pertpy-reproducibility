@@ -35,10 +35,10 @@ sc.tl.umap(adata_pert)
 
 # Identify cells with no detectable perturbation
 mixscape_identifier.mixscape(
-    adata=mdata["rna"], control="NT", labels="gene_target", layer="X_pert", split_by="replicate"
+    adata=mdata["rna"], control="NT", labels="gene_target", layer="X_pert"
 )
 
 # Visualizing perturbation responses with Linear Discriminant Analysis (LDA)
 mixscape_identifier.lda(
-    adata=mdata["rna"], control="NT", labels="gene_target", split_by="replicate"
+    adata=mdata["rna"], control="NT", labels="gene_target"
 )
