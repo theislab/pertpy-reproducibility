@@ -1,9 +1,13 @@
 import muon as mu
 import pertpy as pt
 import scanpy as sc
+import time
 
 # Load dataset
 mdata = pt.dt.papalexi_2021()
+
+# Start time
+start_time = time.time()
 
 # Preprocessing
 # RNA
@@ -42,3 +46,8 @@ mixscape_identifier.mixscape(
 mixscape_identifier.lda(
     adata=mdata["rna"], control="NT", labels="gene_target"
 )
+
+
+# Compute and print elapsed time
+elapsed_time = time.time() - start_time
+print(f"Elapsed time: {elapsed_time} seconds")
