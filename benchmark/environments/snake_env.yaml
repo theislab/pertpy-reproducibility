@@ -1,0 +1,5 @@
+channels:
+  - conda-forge
+dependencies:
+  - pandas
+  # - snakemake>=8.0.0

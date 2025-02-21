@@ -1,0 +1,12 @@
+name: augur_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::augur
+  - conda-forge::r-base
+  - conda-forge::r-seurat
+  - conda-forge::r-tidyverse
+  - conda-forge::r-magrittr
+  - conda-forge::r-ggplot2
+  - conda-forge::r-viridis

@@ -1,0 +1,72 @@
+
+import pandas as pd
+from pathlib import Path
+from snakemake.utils import min_version
+
+min_version("8.0.0")
+conda: "../environments/snake_env.yaml"
+configfile: "../configuration/config.yaml"
+
+rule all:
+    input:
+        "../results/augur_compare.csv"
+
+## AUGUR
+rule augur_py:
+    output:
+        "../results/augur_py.csv"
+    conda: "../environments/pertpy_env.yaml"
+    script: "../scripts/augur.py"
+
+rule augur_r:
+    output:
+        "../results/augur_r.csv"
+    conda: "../environments/augur_env.yaml"
+    script: "../scripts/augur.r"
+
+rule augur_compare:
+    input:
+        "../results/augur_py.csv",
+        "../results/augur_r.csv"
+    output:
+        "../results/augur_compare.csv"
+    log:
+        notebook="logs/notebooks/processed_augur_compare.ipynb"
+    conda: "../environments/pertpy_env.yaml"
+    notebook: "../scripts/augur_compare.ipynb"
+
+## MILO
+# rule milo:
+#     output:
+#         "../results/milo.csv"
+#     log:
+#         notebook="logs/notebooks/processed_augur_compare.ipynb"
+#     conda: "../environments/milo_env.yaml"
+#     notebook: "../scripts/milo_benchmark.ipynb"
+
+## MIXSCAPE
+# rule mixscape:
+#     output:
+#         "../results/mixscape.csv"
+#     log:
+#         notebook="logs/notebooks/processed_mixscape.ipynb"
+#     conda: "../environments/mixscape_env.yaml"
+#     notebook: "../scripts/mixscape_compare.ipynb"
+
+## SCCODA
+# rule sccoda:
+#     output:
+#         "../results/sccoda.csv"
+#     log:
+#         notebook="logs/notebooks/processed_sccoda.ipynb"
+#     conda: "../environments/sccoda_env.yaml"
+#     notebook: "../scripts/sccoda_compare.ipynb"
+
+## SCGEN
+rule scgen:
+    output:
+        "../results/scgen.csv"
+    log:
+        notebook="logs/notebooks/processed_scgen.ipynb"
+    conda: "../environments/scgen_env.yaml"
+    notebook: "../scripts/scgen_compare.ipynb"
