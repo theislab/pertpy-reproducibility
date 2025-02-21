@@ -1,4 +1,4 @@
-name: cinema-ot
+name: drug2cell
 channels:
   - defaults
   - conda-forge
@@ -6,5 +6,5 @@ dependencies:
   - python=3.12
   - pip
   - pip:
-      - pertpy==0.10.0
-      - cinemaot==0.1.2
+      - pertpy
+      - drug2cell

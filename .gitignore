@@ -165,3 +165,4 @@ lightning_logs
 *.pkl
 *.pickle
 .idea/
+cache
