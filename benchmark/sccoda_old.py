@@ -2,25 +2,34 @@ import warnings
 
 warnings.filterwarnings("ignore")
 import pandas as pd
+import pertpy as pt
 
 from sccoda.util import comp_ana as mod
 from sccoda.util import cell_composition_data as dat
 
 
 # Load data
-cell_counts = pd.read_csv("/home/icb/zihe.zheng/data/haber_counts.csv")
-
-# Convert data to anndata object
-data_all = dat.from_pandas(cell_counts, covariate_columns=["Mouse"])
+haber_cells = pt.dt.haber_2017_regions()
 # Extract condition from mouse name and add it as an extra column to the covariates
-data_all.obs["Condition"] = data_all.obs["Mouse"].str.replace(r"_[0-9]", "", regex=True)
+sccoda_model = pt.tl.Sccoda()
+sccoda_data = sccoda_model.load(
+    haber_cells,
+    type="cell_level",
+    generate_sample_level=True,
+    cell_type_identifier="cell_label",
+    sample_identifier="batch",
+    covariate_obs=["condition"],
+)
+sccoda_data.mod["coda_salm"] = sccoda_data["coda"][
+    sccoda_data["coda"].obs["condition"].isin(["Control", "Salmonella"])
+].copy()
 
 # Select control and salmonella data
-data_salm = data_all[data_all.obs["Condition"].isin(["Control", "Salm"])]
+data_salm = sccoda_data.mod["coda_salm"]
 
 # run model
 model_salm = mod.CompositionalAnalysis(
-    data_salm, formula="Condition", reference_cell_type="Goblet"
+    data_salm, formula="condition", reference_cell_type="Goblet"
 )
 # run mcmc
 sim_results = model_salm.sample_hmc()
@@ -34,41 +43,50 @@ sim_results.summary()
 ######################################### SECOND SCRIPT ##########################################
 
 # Load data
-cell_counts = pd.read_csv("/home/icb/zihe.zheng/data/haber_counts.csv")
-
-# Convert data to anndata object
-data_all = dat.from_pandas(cell_counts, covariate_columns=["Mouse"])
-
+haber_cells = pt.dt.haber_2017_regions()
 # Extract condition from mouse name and add it as an extra column to the covariates
-data_all.obs["Condition"] = data_all.obs["Mouse"].str.replace(r"_[0-9]", "", regex=True)
+sccoda_model = pt.tl.Sccoda()
+sccoda_data = sccoda_model.load(
+    haber_cells,
+    type="cell_level",
+    generate_sample_level=True,
+    cell_type_identifier="cell_label",
+    sample_identifier="batch",
+    covariate_obs=["condition"],
+)
+sccoda_data.mod["coda_salm"] = sccoda_data["coda"][
+    sccoda_data["coda"].obs["condition"].isin(["Control", "Salmonella"])
+].copy()
 
 # Select control and salmonella data
-data_salm = data_all[data_all.obs["Condition"].isin(["Control", "Salm"])].copy()
+data_salm = sccoda_data.mod["coda_salm"]
+data_all = sccoda_data.mod["coda"]
 
 # model all three diseases at once
 model_all = mod.CompositionalAnalysis(
-    data_all, formula="Condition", reference_cell_type="Endocrine"
+    data_all, formula="condition", reference_cell_type="Endocrine"
 )
 all_results = model_all.sample_hmc()
 all_results.summary()
 
 # Set salmonella infection as "default" category
 model_salm_switch_cond = mod.CompositionalAnalysis(
-    data_salm, formula="C(Condition, Treatment('Salm'))", reference_cell_type="Goblet"
+    data_salm, formula="C(condition, Treatment('Salmonella'))", reference_cell_type="Goblet"
 )
 switch_results = model_salm_switch_cond.sample_hmc()
 switch_results.summary()
 
 # switching reference cell type
 model_salm_ref = mod.CompositionalAnalysis(
-    data_salm, formula="Condition", reference_cell_type="Enterocyte"
+    data_salm, formula="condition", reference_cell_type="Enterocyte"
 )
 reference_results = model_salm_ref.sample_hmc()
+reference_results.set_fdr(est_fdr=0.4)
 reference_results.summary()
 
 ## result analysis
 model_salm = mod.CompositionalAnalysis(
-    data_salm, formula="Condition", reference_cell_type="Goblet"
+    data_salm, formula="condition", reference_cell_type="Goblet"
 )
 salm_results = model_salm.sample_hmc(num_results=20000)
 
@@ -84,7 +102,7 @@ for ct in cell_types:
 
     # Run inference
     model_temp = mod.CompositionalAnalysis(
-        data_salm, formula="Condition", reference_cell_type=ct
+        data_salm, formula="condition", reference_cell_type=ct
     )
     temp_results = model_temp.sample_hmc(num_results=20000)
 
