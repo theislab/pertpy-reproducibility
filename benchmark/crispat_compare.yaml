@@ -1,0 +1,10 @@
+name: crispat_compare
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::python=3.10
+  - conda-forge::ipykernel
+  - conda-forge::jupyter
+  - pip:
+    - pertpy
+    - crispat==0.9.8
