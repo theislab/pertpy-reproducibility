@@ -27,6 +27,7 @@ sc.tl.umap(mdata["rna"])
 
 # Mitigating confounding effects
 mixscape_identifier = pt.tl.Mixscape()
+mdata["rna"].X = mdata["rna"].X.toarray()
 mixscape_identifier.perturbation_signature(
     mdata["rna"], "perturbation", "NT", split_by="replicate", n_neighbors=20, n_dims=40,
 )
