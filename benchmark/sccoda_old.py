@@ -5,7 +5,6 @@ import pandas as pd
 import pertpy as pt
 
 from sccoda.util import comp_ana as mod
-from sccoda.util import cell_composition_data as dat
 
 
 # Load data
@@ -71,7 +70,9 @@ all_results.summary()
 
 # Set salmonella infection as "default" category
 model_salm_switch_cond = mod.CompositionalAnalysis(
-    data_salm, formula="C(condition, Treatment('Salmonella'))", reference_cell_type="Goblet"
+    data_salm,
+    formula="C(condition, Treatment('Salmonella'))",
+    reference_cell_type="Goblet",
 )
 switch_results = model_salm_switch_cond.sample_hmc()
 switch_results.summary()

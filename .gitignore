@@ -166,3 +166,4 @@ lightning_logs
 *.pickle
 .idea/
 benchmark/cache
+cache
