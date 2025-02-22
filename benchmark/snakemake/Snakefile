@@ -8,11 +8,21 @@ conda: "../environments/snake_env.yaml"
 configfile: "../configuration/config.yaml"
 TEMPDIR = Path(config["TEMPDIR"])
 
+def increment_memory(base_memory):
+    def mem(wildcards, attempt):
+        return base_memory * (2 ** (attempt - 1))
+    return mem
+
 rule all:
     input:
+        # AUGUR
         expand("../results/augur_{n_sample}_{implementation}.csv", 
-               n_sample=[0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000], 
+               n_sample=[0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000], 
                implementation=["py", "r"]),
+        # MILO
+        expand("../results/milo_{n_sample}_{ext}",
+               n_sample=[0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000],
+               ext=["py.h5mu", "r.csv"]),
 
 ## AUGUR
 rule augur_pertpy:
@@ -22,10 +32,11 @@ rule augur_pertpy:
     benchmark:
         repeat("benchmarks/augur.{n_sample}.pertpy.benchmark.tsv", 3)
     threads: 16
+    retries: 3
     resources:
-        mem_mb=32000,
+        mem_mb=increment_memory(64000),
         time=60
-    script: "../scripts/augur.py"
+    script: "../augur/augur.py"
 
 rule augur_original:
     output:
@@ -34,27 +45,59 @@ rule augur_original:
     benchmark:
         repeat("benchmarks/augur.{n_sample}.original.benchmark.tsv", 3)
     threads: 16
+    retries: 3
     resources:
-        mem_mb=32000,
+        mem_mb=increment_memory(64000),
         time=60
-    script: "../scripts/augur.R"
+    script: "../augur/augur.R"
 
 ## MILO
-rule milo_convert_data:
-    input:
-        h5ad = "../data/milo.h5ad"
+rule milo_prepare_data:
     output:
-        rds = "../data/milo.rds"
-    conda: "../environments/milo_env.yaml"
-    script: "../scripts/milo_convert_data.ipynb"
+        h5ad=TEMPDIR / "milo_data_{n_sample}.h5ad",
+        obs=TEMPDIR / "milo_obs_{n_sample}.csv",
+        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_sample}.csv",
+        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv"
+    retries: 3
+    resources:
+        mem_mb=increment_memory(64000),
+        time=60
+    conda: "../environments/pertpy_env.yaml"
+    script: "../milo/milo_prepare.py"
 
-# rule milo:
-#     output:
-#         "../results/milo.csv"
-#     log:
-#         notebook="logs/notebooks/processed_augur_compare.ipynb"
-#     conda: "../environments/milo_env.yaml"
-#     notebook: "../scripts/milo_benchmark.ipynb"
+rule milo_py:
+    input:
+        h5ad=TEMPDIR / "milo_data_{n_sample}.h5ad",
+    output:
+        milo_res="../results/milo_{n_sample}_py.h5mu"
+    conda: "../milo/milo_env.yaml"
+    benchmark:
+        repeat("benchmarks/milo.{n_sample}.pertpy.benchmark.tsv", 3)
+    threads: 16
+    retries: 3
+    resources:
+        mem_mb=increment_memory(64000),
+        time=60
+    script: "../milo/milo.py"
+
+rule milo_r:
+    input:
+        obs=TEMPDIR / "milo_obs_{n_sample}.csv",
+        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_sample}.csv",
+        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv"
+    output:
+        milo_res="../results/milo_{n_sample}_r.csv",
+        milo_res_graph="../results/milo_{n_sample}_nhoods.mtx"
+    conda: "milo_env" # "../environments/milo_env.yaml"
+    benchmark:
+        repeat("benchmarks/milo.{n_sample}.original.benchmark.tsv", 3)
+    threads: 16
+    retries: 3
+    resources:
+        mem_mb=increment_memory(64000),
+        time=60
+    script: "../milo/milo.R"
+    
 
 ## MIXSCAPE
 # rule mixscape:

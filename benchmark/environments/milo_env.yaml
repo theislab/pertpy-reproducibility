@@ -14,4 +14,3 @@ dependencies:
   - conda-forge::r-ggplot2
   - pip:
     - pertpy
-    - rpy2==3.5.10

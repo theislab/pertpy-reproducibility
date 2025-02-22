@@ -1,6 +1,5 @@
 name: milo
 channels:
-  - defaults
   - conda-forge
   - bioconda
 dependencies:
