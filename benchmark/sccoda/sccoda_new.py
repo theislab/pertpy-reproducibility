@@ -1,11 +1,14 @@
 import warnings
 
 warnings.filterwarnings("ignore")
+import time
+
 import pandas as pd
 import pertpy as pt
 
-# load data
 haber_cells = pt.dt.haber_2017_regions()
+
+start = time.time()
 
 # set up model
 sccoda_model = pt.tl.Sccoda()
@@ -38,6 +41,9 @@ sccoda_model.summary(sccoda_data, modality_key="coda_salm")
 sccoda_model.credible_effects(sccoda_data, modality_key="coda_salm")
 sccoda_model.set_fdr(sccoda_data, modality_key="coda_salm", est_fdr=0.4)
 sccoda_model.summary(sccoda_data, modality_key="coda_salm")
+
+runtime = time.time() - start
+print(f"Runtime: {runtime:.2f} seconds")
 
 ######################################### SECOND SCRIPT ##########################################
 
