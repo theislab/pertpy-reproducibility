@@ -1,7 +1,8 @@
-import scanpy as sc
-import drug2cell as d2c
-import blitzgsea as blitz
 import time
+
+import blitzgsea as blitz
+import drug2cell as d2c
+import scanpy as sc
 
 adata = sc.datasets.pbmc3k_processed()
 

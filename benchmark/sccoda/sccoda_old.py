@@ -3,9 +3,7 @@ import warnings
 warnings.filterwarnings("ignore")
 import pandas as pd
 import pertpy as pt
-
 from sccoda.util import comp_ana as mod
-
 
 # Load data
 haber_cells = pt.dt.haber_2017_regions()
@@ -27,9 +25,7 @@ sccoda_data.mod["coda_salm"] = sccoda_data["coda"][
 data_salm = sccoda_data.mod["coda_salm"]
 
 # run model
-model_salm = mod.CompositionalAnalysis(
-    data_salm, formula="condition", reference_cell_type="Goblet"
-)
+model_salm = mod.CompositionalAnalysis(data_salm, formula="condition", reference_cell_type="Goblet")
 # run mcmc
 sim_results = model_salm.sample_hmc()
 
@@ -62,9 +58,7 @@ data_salm = sccoda_data.mod["coda_salm"]
 data_all = sccoda_data.mod["coda"]
 
 # model all three diseases at once
-model_all = mod.CompositionalAnalysis(
-    data_all, formula="condition", reference_cell_type="Endocrine"
-)
+model_all = mod.CompositionalAnalysis(data_all, formula="condition", reference_cell_type="Endocrine")
 all_results = model_all.sample_hmc()
 all_results.summary()
 
@@ -78,17 +72,13 @@ switch_results = model_salm_switch_cond.sample_hmc()
 switch_results.summary()
 
 # switching reference cell type
-model_salm_ref = mod.CompositionalAnalysis(
-    data_salm, formula="condition", reference_cell_type="Enterocyte"
-)
+model_salm_ref = mod.CompositionalAnalysis(data_salm, formula="condition", reference_cell_type="Enterocyte")
 reference_results = model_salm_ref.sample_hmc()
 reference_results.set_fdr(est_fdr=0.4)
 reference_results.summary()
 
 ## result analysis
-model_salm = mod.CompositionalAnalysis(
-    data_salm, formula="condition", reference_cell_type="Goblet"
-)
+model_salm = mod.CompositionalAnalysis(data_salm, formula="condition", reference_cell_type="Goblet")
 salm_results = model_salm.sample_hmc(num_results=20000)
 
 # extended summary
@@ -102,9 +92,7 @@ for ct in cell_types:
     print(f"Reference: {ct}")
 
     # Run inference
-    model_temp = mod.CompositionalAnalysis(
-        data_salm, formula="condition", reference_cell_type=ct
-    )
+    model_temp = mod.CompositionalAnalysis(data_salm, formula="condition", reference_cell_type=ct)
     temp_results = model_temp.sample_hmc(num_results=20000)
 
     # Select credible effects

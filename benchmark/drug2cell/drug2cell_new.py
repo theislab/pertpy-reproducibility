@@ -1,7 +1,8 @@
+import time
+
+import blitzgsea as blitz
 import pertpy as pt
 import scanpy as sc
-import blitzgsea as blitz
-import time
 
 adata = sc.datasets.pbmc3k_processed()
 

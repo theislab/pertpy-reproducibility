@@ -1,8 +1,8 @@
 import warnings
 
 warnings.filterwarnings("ignore")
-import pertpy as pt
 import pandas as pd
+import pertpy as pt
 
 # load data
 haber_cells = pt.dt.haber_2017_regions()

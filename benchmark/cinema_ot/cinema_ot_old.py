@@ -1,8 +1,9 @@
-import scanpy as sc
-import cinemaot as co
-import pertpy as pt
-import numpy as np
 import time
+
+import cinemaot as co
+import numpy as np
+import pertpy as pt
+import scanpy as sc
 
 adata = pt.dt.cinemaot_example()
 sc.pp.sample(adata, n=10000, replace=True)
