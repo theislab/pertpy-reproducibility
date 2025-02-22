@@ -17,8 +17,10 @@ adata.obs_names_make_unique()
 ag_rfc = pt.tl.Augur("random_forest_classifier")
 loaded_data = ag_rfc.load(adata)
 
-# predict with with select variance feature selection
-# NOTE: using augur_mode='velocity' as in comparison notebook
-v_adata, v_results = ag_rfc.predict(loaded_data, subsample_size=20, n_threads=snakemake.threads, augur_mode='velocity', )
+v_adata, v_results = ag_rfc.predict(loaded_data, 
+                                    subsample_size=20, 
+                                    n_threads=snakemake.threads, 
+                                    augur_mode='default', 
+                                    select_variance_features=True)
 print(v_results["summary_metrics"])
 v_results["summary_metrics"].to_csv(output)

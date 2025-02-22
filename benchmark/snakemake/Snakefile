@@ -8,15 +8,11 @@ conda: "../environments/snake_env.yaml"
 configfile: "../configuration/config.yaml"
 TEMPDIR = Path(config["TEMPDIR"])
 
-# Grids
-n_sample_augur = [0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000]
-
 rule all:
     input:
-        expand("../results/augur_{n_sample}_py.csv", n_sample=n_sample_augur),
-        "../results/augur_r.csv",
-        # "../results/augur_compare.csv"
-
+        expand("../results/augur_{n_sample}_{implementation}.csv", 
+               n_sample=[0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000], 
+               implementation=["py", "r"]),
 
 ## AUGUR
 rule augur_pertpy:
@@ -27,29 +23,31 @@ rule augur_pertpy:
         repeat("benchmarks/augur.{n_sample}.pertpy.benchmark.tsv", 3)
     threads: 16
     resources:
-        mem_mb=32000
+        mem_mb=32000,
+        time=60
     script: "../scripts/augur.py"
 
 rule augur_original:
     output:
-        out_sim = "../results/augur_r.csv"
+        out_sim = "../results/augur_{n_sample}_r.csv",
     conda: "augur_env"  # "../environments/augur_env.yaml"
     benchmark:
-        "benchmarks/augur.original.benchmark.tsv"
+        repeat("benchmarks/augur.{n_sample}.original.benchmark.tsv", 3)
+    threads: 16
+    resources:
+        mem_mb=32000,
+        time=60
     script: "../scripts/augur.R"
 
-rule augur_compare:
-    input:
-        "../results/augur_0_py.csv",
-        "../results/augur_r.csv"
-    output:
-        "../results/augur_compare.csv"
-    log:
-        notebook="logs/notebooks/processed_augur_compare.ipynb"
-    conda: "../environments/pertpy_env.yaml"
-    notebook: "../scripts/augur_compare.ipynb"
-
 ## MILO
+rule milo_convert_data:
+    input:
+        h5ad = "../data/milo.h5ad"
+    output:
+        rds = "../data/milo.rds"
+    conda: "../environments/milo_env.yaml"
+    script: "../scripts/milo_convert_data.ipynb"
+
 # rule milo:
 #     output:
 #         "../results/milo.csv"
