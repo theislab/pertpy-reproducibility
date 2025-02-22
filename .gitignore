@@ -166,3 +166,5 @@ lightning_logs
 *.pickle
 .idea/
 .snakemake
+benchmark/cache
+cache
