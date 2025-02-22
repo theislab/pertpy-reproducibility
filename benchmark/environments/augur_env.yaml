@@ -10,3 +10,12 @@ dependencies:
   - conda-forge::r-magrittr
   - conda-forge::r-ggplot2
   - conda-forge::r-viridis
+  - conda-forge::r-devtools
+
+# Then do:
+# devtools::install_github("Bioconductor/MatrixGenerics")
+# devtools::install_github("const-ae/sparseMatrixStats")
+# devtools::install_github("neurorestore/Augur")
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("BiocGenerics")
