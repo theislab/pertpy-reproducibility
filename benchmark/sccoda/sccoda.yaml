@@ -6,7 +6,7 @@ dependencies:
   - r-base=4.3.1
   - pip: # more or less installed in that order
       - sccoda==0.1.9
-      - pertpy
+      - pertpy[coda]
       - numba<0.60.0
       - tensorflow==2.18.0
       - tensorflow-probability[tf]

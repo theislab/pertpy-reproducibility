@@ -1,0 +1,9 @@
+name: dge
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - pertpy[de]==0.10.0
