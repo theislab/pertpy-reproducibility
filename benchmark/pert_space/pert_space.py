@@ -7,7 +7,7 @@ import scanpy
 import pertpy as pt
 
 # I/O
-if snakemake in globals():
+if snakemake in locals():
     output = snakemake.output[0]
     n_obs = int(snakemake.wildcards.n_obs)
 else:

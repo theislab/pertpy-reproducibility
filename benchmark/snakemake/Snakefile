@@ -117,7 +117,7 @@ rule milo_r:
 rule guide_assignment:
     output:
         "../results/guide_assignment_{n_obs}.csv"
-    conda: "../environments/pertpy_env.yaml"
+    conda: "pertpy_dev"# "../environments/pertpy_env.yaml" # Needs current dev version
     benchmark:
         repeat("benchmarks/guide_assignment.{n_obs}.benchmark.tsv", n_repeats_benchmark)
     retries: retries
@@ -186,7 +186,7 @@ rule dge:
 rule mixscape_pertpy:
     output:
         "../results/mixscape_{n_obs}.flag"
-    conda: "../environments/pertpy_env.yaml"
+    conda: "pertpy_dev" # "../environments/pertpy_env.yaml"  #  TODO: GIves TypeError: NNDescent.__init__() got an unexpected keyword argument 'n_dims'. Need specific pynndescent version
     benchmark:
         repeat("benchmarks/mixscape.{n_obs}.benchmark.tsv", n_repeats_benchmark)
     retries: retries
