@@ -1,8 +1,17 @@
 import time
+from pathlib import Path
 
 import blitzgsea as blitz
 import drug2cell as d2c
 import scanpy as sc
+
+# I/O
+if snakemake in globals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
 
@@ -28,3 +37,6 @@ enrichment, plot_gsea_args = d2c.gsea(adata, targets=targets)
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

@@ -1,12 +1,21 @@
 import time
+from pathlib import Path
 
 import cinemaot as co
 import numpy as np
 import pertpy as pt
 import scanpy as sc
 
+# I/O
+if snakemake in globals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = 10000
+
 adata = pt.dt.cinemaot_example()
-sc.pp.sample(adata, n=10000, replace=True)
+sc.pp.sample(adata, n=n_obs, replace=True)
 adata.X = adata.raw.X.copy()
 
 sc.pp.pca(adata)
@@ -33,3 +42,6 @@ adata.obsm["cf_orig"][adata.obs["perturbation"] == "IFNb", :] = np.matmul(
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

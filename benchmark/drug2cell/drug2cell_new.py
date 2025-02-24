@@ -1,8 +1,17 @@
 import time
+from pathlib import Path
 
 import blitzgsea as blitz
 import pertpy as pt
 import scanpy as sc
+
+# I/O
+if snakemake in globals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
 
@@ -27,3 +36,6 @@ enrichment = pt_enricher.gsea(adata, targets=targets)
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

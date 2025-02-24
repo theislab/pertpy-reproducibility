@@ -1,9 +1,21 @@
+from pathlib import Path
+
 import muon as mu
 import pertpy as pt
 import scanpy as sc
 
+# I/O
+if snakemake in globals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
+
 # Load dataset
 mdata = pt.dt.papalexi_2021()
+if n_obs:
+    adata = scanpy.pp.subsample(adata, n_obs, rng=0, replace=True)
 
 # Preprocessing
 # RNA
@@ -42,3 +54,6 @@ mixscape_identifier.mixscape(
 mixscape_identifier.lda(
     adata=mdata["rna"], control="NT", labels="gene_target"
 )
+
+if output:
+    Path(output).touch()

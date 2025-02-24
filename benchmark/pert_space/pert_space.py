@@ -1,13 +1,25 @@
 import os
 import time
 import warnings
+from pathlib import Path
 
+import scanpy
 import pertpy as pt
+
+# I/O
+if snakemake in globals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
 
 warnings.filterwarnings("ignore")
 os.environ["KMP_WARNINGS"] = "off"
 
 adata = pt.dt.norman_2019()
+if n_obs:
+    adata = scanpy.pp.subsample(adata, n_obs, rng=0, replace=True)
 
 G1_CYCLE = [
     "CDKN1A",
@@ -141,3 +153,6 @@ psadata = ps.compute(adata, embedding_key="X_pca", target_col="perturbation_name
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

@@ -10,6 +10,7 @@ output_obs = snakemake.output.obs
 output_obsm_scvi = snakemake.output.obsm_scvi
 output_obsm_umap = snakemake.output.obsm_umap
 n_sample = int(snakemake.wildcards.n_sample)
+print(f"Subsampling {n_sample} cells")
 
 adata = pt.dt.stephenson_2021_subsampled()
 adata = adata[adata.obs["Status"] != "LPS"].copy()
