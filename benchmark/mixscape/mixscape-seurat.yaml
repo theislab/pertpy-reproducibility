@@ -1,0 +1,13 @@
+name: mixscape-seurat
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base=4.3.3
+  - r-seurat==4.4.0
+  - r-seurat-data
+  - r-mixtools
+  - r-patchwork
+  - r-scales
+  - r-dplyr
+  - r-reshape2

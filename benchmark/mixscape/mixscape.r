@@ -11,6 +11,9 @@ library(reshape2)
 InstallData(ds = "thp1.eccite")
 eccite <- LoadData(ds = "thp1.eccite")
 
+# Record the start time
+start_time <- Sys.time()
+
 # Preprocessing
 # Protein
 eccite <- NormalizeData(
@@ -87,3 +90,8 @@ sub <- MixscapeLDA(
   logfc.threshold = 0.25,
   verbose = F)
 
+
+# Record and print execution time
+end_time <- Sys.time()
+execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
+cat("RUNTIME: ", execution_time, " seconds\n")
