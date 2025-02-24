@@ -6,4 +6,4 @@ dependencies:
   - pip
   - pip:
       - pertpy==0.10.0
-      - cinemaot==0.1.2
+      - cinemaot==0.0.5
