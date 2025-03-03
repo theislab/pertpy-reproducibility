@@ -6,7 +6,7 @@ import drug2cell as d2c
 import scanpy as sc
 
 # I/O
-if snakemake in locals():
+if "snakemake" in locals():
     output = snakemake.output[0]
     n_obs = int(snakemake.wildcards.n_obs)
 else:
@@ -14,6 +14,7 @@ else:
     n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
+sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
 
 start = time.time()
 

@@ -3,9 +3,10 @@ from pathlib import Path
 import muon as mu
 import pertpy as pt
 import scanpy as sc
+import numpy as np
 
 # I/O
-if snakemake in locals():
+if "snakemake" in locals():
     output = snakemake.output[0]
     n_obs = int(snakemake.wildcards.n_obs)
 else:
@@ -15,7 +16,26 @@ else:
 # Load dataset
 mdata = pt.dt.papalexi_2021()
 if n_obs:
-    adata = scanpy.pp.subsample(adata, n_obs, rng=0, replace=True)
+    from numpy.random import choice
+    idx = choice(np.arange(mdata.n_obs), n_obs, replace=True)
+    adt = mdata['adt'][idx]
+    adt.obs_names_make_unique()
+    rna = mdata['rna'][idx]
+    rna.obs_names_make_unique()
+    hto = mdata['hto'][idx]
+    hto.obs_names_make_unique()
+    gdo = mdata['gdo'][idx]
+    gdo.obs_names_make_unique()
+
+    mdata = mu.MuData(
+        dict(
+        adt=adt.copy(),
+        rna=rna.copy(),
+        htos=hto.copy(),
+        gdo=gdo.copy()
+        )
+    )
+    del adt, rna, hto, gdo
 
 # Preprocessing
 # RNA

@@ -14,9 +14,9 @@ def increment_memory(base_memory):
     return mem
 retries = 1
 n_repeats_benchmark = 3
-maxtime_min = 60
+maxtime_min = 30
 base_memory_mb = 64000
-grid = [1000, 5000, 10000]#, 50000, 100000, 500000, 1000000, 3000000]
+grid = [1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000]
 
 rule all:
     input:
@@ -35,7 +35,9 @@ rule all:
         # ETC
         expand("../results/{implementation}_{n_obs}.flag", 
                n_obs=grid,
-               implementation=["cinemaot_pertpy", "cinemaot_original", "pertspace", "dge", "mixscape_pertpy"]),
+               implementation=["cinemaot_pertpy", "cinemaot_original", "pertspace", 
+               "dge", "mixscape_pertpy", "drug2cell_pertpy", "drug2cell_original", 
+               "sccoda_pertpy", "sccoda_original"]),
 ## AUGUR
 rule augur_pertpy:
     output:
@@ -172,7 +174,7 @@ rule pertspace:
 rule dge:
     output:
         "../results/dge_{n_obs}.flag"
-    conda: "../dge/dge.yaml"
+    conda: "pertpy_dev"  # ../dge/dge.yaml"  # NOTE: had to manually install
     benchmark:
         repeat("benchmarks/dge.{n_obs}.benchmark.tsv", n_repeats_benchmark)
     retries: retries
@@ -185,10 +187,10 @@ rule dge:
 ## MIXSCAPE
 rule mixscape_pertpy:
     output:
-        "../results/mixscape_{n_obs}.flag"
+        "../results/mixscape_pertpy_{n_obs}.flag"
     conda: "pertpy_dev" # "../environments/pertpy_env.yaml"  #  TODO: GIves TypeError: NNDescent.__init__() got an unexpected keyword argument 'n_dims'. Need specific pynndescent version
     benchmark:
-        repeat("benchmarks/mixscape.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/mixscape.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
@@ -202,7 +204,7 @@ rule drug2cell_pertpy:
         "../results/drug2cell_pertpy_{n_obs}.flag"
     conda: "../environments/pertpy_env.yaml"
     benchmark:
-        repeat("benchmarks/drug2cell.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/drug2cell.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
@@ -213,12 +215,41 @@ rule drug2cell_pertpy:
 rule drug2cell_original:
     output:
         "../results/drug2cell_original_{n_obs}.flag"
-    conda: "../drug2cell/drug2cell.yaml"
+    conda: "pertpy_dev"#  "../drug2cell/drug2cell.yaml"
     benchmark:
-        repeat("benchmarks/drug2cell.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/drug2cell.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
         disk_mb=64000,
         time=maxtime_min
     script: "../drug2cell/drug2cell_old.py"
+
+## SCCODA
+rule sccoda_pertpy:
+    output:
+        "../results/sccoda_pertpy_{n_obs}.flag"
+    conda: "sccoda-old"#"../sccoda/sccoda.yaml"
+    benchmark:
+        repeat("benchmarks/sccoda.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        disk_mb=64000,
+        time=maxtime_min
+    script: "../sccoda/sccoda_new.py"
+
+rule sccoda_original:
+    output:
+        "../results/sccoda_original_{n_obs}.flag"
+    conda: "sccoda-old"#"../sccoda/sccoda.yaml"
+    benchmark:
+        repeat("benchmarks/sccoda.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        disk_mb=64000,
+        time=maxtime_min
+    script: "../sccoda/sccoda_old.py"
+
+# TODO: Add tool:Dialog, waiting for Yuge

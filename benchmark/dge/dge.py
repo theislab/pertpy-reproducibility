@@ -9,16 +9,17 @@ import scanpy as sc
 warnings.filterwarnings("ignore")
 
 # I/O
-if snakemake in locals():
+if "snakemake" in locals():
     output = snakemake.output[0]
     n_obs = int(snakemake.wildcards.n_obs)
 else:
     output = None
     n_obs = None
+print(f"n_obs: {n_obs}")
 
 adata = pt.dt.zhang_2021()
 if n_obs:
-    adata = scanpy.pp.subsample(adata, n_obs, rng=0, replace=True)
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
 
 adata = adata[adata.obs["Origin"] == "t", :].copy()
 adata = adata[~adata.obs["Patient"].isin(["P010"])]

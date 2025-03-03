@@ -1379,7 +1379,7 @@ cell1377,guide1,guide1
 cell1378,guide1,guide1
 cell1379,guide1,guide1
 cell1380,guide1,guide1
-cell1381,guide1,negative
+cell1381,guide1,guide1
 cell1382,guide1,negative
 cell1383,guide1,guide1
 cell1384,guide1,guide1
@@ -1978,7 +1978,7 @@ cell1976,guide2,guide2
 cell1977,guide2,guide2
 cell1978,guide2,guide2
 cell1979,guide2,negative
-cell1980,guide2,negative
+cell1980,guide2,guide2
 cell1981,guide2,guide2
 cell1982,guide2,guide2
 cell1983,guide2,guide2
@@ -2405,7 +2405,7 @@ cell2403,guide2,guide2
 cell2404,guide2,guide2
 cell2405,guide2,guide2
 cell2406,guide2,guide2
-cell2407,guide2,guide2
+cell2407,guide2,guide1+guide2
 cell2408,guide2,guide2
 cell2409,guide2,negative
 cell2410,guide2,guide2
@@ -2792,7 +2792,7 @@ cell2790,guide2,negative
 cell2791,guide2,guide2
 cell2792,guide2,guide2
 cell2793,guide2,guide2
-cell2794,guide2,negative
+cell2794,guide2,guide1
 cell2795,guide2,guide2
 cell2796,guide2,guide2
 cell2797,guide2,guide2
@@ -3017,7 +3017,7 @@ cell3015,guide2,guide2
 cell3016,guide2,guide2
 cell3017,guide2,guide2
 cell3018,guide2,guide2
-cell3019,guide2,negative
+cell3019,guide2,guide2
 cell3020,guide2,guide2
 cell3021,guide2,guide2
 cell3022,guide2,guide2
@@ -3117,7 +3117,7 @@ cell3115,guide2,guide2
 cell3116,guide2,guide2
 cell3117,guide2,guide2
 cell3118,guide2,guide2
-cell3119,guide2,guide2
+cell3119,guide2,guide1+guide2
 cell3120,guide2,guide2
 cell3121,guide2,guide2
 cell3122,guide2,guide2
@@ -3159,7 +3159,7 @@ cell3157,guide2,negative
 cell3158,guide2,guide2
 cell3159,guide2,guide2
 cell3160,guide2,guide2
-cell3161,guide2,guide2
+cell3161,guide2,guide1+guide2
 cell3162,guide2,guide2
 cell3163,guide2,guide2
 cell3164,guide2,guide2
@@ -3170,7 +3170,7 @@ cell3168,guide2,guide2
 cell3169,guide2,guide2
 cell3170,guide2,guide2
 cell3171,guide2,guide2
-cell3172,guide2,guide2
+cell3172,guide2,guide1+guide2
 cell3173,guide2,guide2
 cell3174,guide2,guide2
 cell3175,guide2,negative
@@ -3431,7 +3431,7 @@ cell3429,guide3,guide3
 cell3430,guide3,guide3
 cell3431,guide3,guide3
 cell3432,guide3,guide3
-cell3433,guide3,guide3
+cell3433,guide3,guide1+guide3
 cell3434,guide3,guide3
 cell3435,guide3,guide3
 cell3436,guide3,guide3
@@ -3588,7 +3588,7 @@ cell3586,guide3,guide3
 cell3587,guide3,guide3
 cell3588,guide3,guide3
 cell3589,guide3,guide3
-cell3590,guide3,guide3
+cell3590,guide3,guide1+guide3
 cell3591,guide3,guide3
 cell3592,guide3,guide3
 cell3593,guide3,guide3
@@ -3812,7 +3812,7 @@ cell3810,guide3,guide3
 cell3811,guide3,guide3
 cell3812,guide3,guide3
 cell3813,guide3,guide3
-cell3814,guide3,guide3
+cell3814,guide3,guide1+guide3
 cell3815,guide3,guide3
 cell3816,guide3,guide3
 cell3817,guide3,negative
@@ -4165,7 +4165,7 @@ cell4163,guide3,guide3
 cell4164,guide3,negative
 cell4165,guide3,guide3
 cell4166,guide3,guide3
-cell4167,guide3,guide3
+cell4167,guide3,guide1+guide3
 cell4168,guide3,guide3
 cell4169,guide3,guide3
 cell4170,guide3,guide3
@@ -4386,7 +4386,7 @@ cell4384,guide3,guide3
 cell4385,guide3,guide3
 cell4386,guide3,guide3
 cell4387,guide3,guide3
-cell4388,guide3,guide3
+cell4388,guide3,guide1+guide3
 cell4389,guide3,guide3
 cell4390,guide3,guide3
 cell4391,guide3,guide3
@@ -4434,7 +4434,7 @@ cell4432,guide3,guide2+guide3
 cell4433,guide3,guide3
 cell4434,guide3,guide3
 cell4435,guide3,guide3
-cell4436,guide3,guide3
+cell4436,guide3,guide1+guide3
 cell4437,guide3,guide3
 cell4438,guide3,guide3
 cell4439,guide3,guide3
@@ -4454,7 +4454,7 @@ cell4452,guide3,guide3
 cell4453,guide3,guide3
 cell4454,guide3,guide3
 cell4455,guide3,guide3
-cell4456,guide3,guide3
+cell4456,guide3,guide1+guide3
 cell4457,guide3,guide3
 cell4458,guide3,guide3
 cell4459,guide3,guide3
@@ -4542,7 +4542,7 @@ cell4540,guide3,guide3
 cell4541,guide3,guide3
 cell4542,guide3,guide3
 cell4543,guide3,guide2+guide3
-cell4544,guide3,guide3
+cell4544,guide3,guide1+guide3
 cell4545,guide3,guide3
 cell4546,guide3,negative
 cell4547,guide3,guide3
@@ -4637,7 +4637,7 @@ cell4635,guide3,negative
 cell4636,guide3,negative
 cell4637,guide3,negative
 cell4638,guide3,guide3
-cell4639,guide3,negative
+cell4639,guide3,guide1
 cell4640,guide3,guide3
 cell4641,guide3,guide3
 cell4642,guide3,guide3
@@ -4756,7 +4756,7 @@ cell4754,guide3,guide3
 cell4755,guide3,negative
 cell4756,guide3,guide3
 cell4757,guide3,guide3
-cell4758,guide3,guide3
+cell4758,guide3,guide1+guide3
 cell4759,guide3,guide3
 cell4760,guide3,guide3
 cell4761,guide3,guide3

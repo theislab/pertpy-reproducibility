@@ -3,11 +3,11 @@ import time
 import warnings
 from pathlib import Path
 
-import scanpy
+import scanpy as sc
 import pertpy as pt
 
 # I/O
-if snakemake in locals():
+if "snakemake" in locals():
     output = snakemake.output[0]
     n_obs = int(snakemake.wildcards.n_obs)
 else:
@@ -19,7 +19,7 @@ os.environ["KMP_WARNINGS"] = "off"
 
 adata = pt.dt.norman_2019()
 if n_obs:
-    adata = scanpy.pp.subsample(adata, n_obs, rng=0, replace=True)
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
 
 G1_CYCLE = [
     "CDKN1A",
