@@ -168,3 +168,5 @@ lightning_logs
 .snakemake
 benchmark/cache
 cache
+.Rdata
+.Rhistory

@@ -1,0 +1,13 @@
+name: dialogue
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - conda-forge::r-base==4.4.3
+  - conda-forge::r-devtools==2.4.5
+  - conda-forge::r-lme4
+  - conda-forge::r-lmertest
+  - conda-forge::r-hmisc
+  - conda-forge::r-nnls
+  # Then enter R and devtools::install_github(repo = "https://github.com/livnatje/DIALOGUE")
