@@ -1,0 +1,10 @@
+name: drug2cell
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - pertpy
+      - drug2cell

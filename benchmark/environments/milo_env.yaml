@@ -1,0 +1,17 @@
+name: milo_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::python=3.12
+  - conda-forge::r-base
+  - conda-forge::r-systemfonts
+  - conda-forge::libxml2
+  - bioconda::bioconductor-milor
+  - bioconda::bioconductor-singlecellexperiment
+  - conda-forge::seaborn
+  - conda-forge::r-dplyr
+  - conda-forge::r-ggplot2
+  - pip:
+    - pertpy
+    - rpy2==3.5.10

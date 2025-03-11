@@ -165,3 +165,8 @@ lightning_logs
 *.pkl
 *.pickle
 .idea/
+.snakemake
+benchmark/cache
+cache
+.Rdata
+.Rhistory

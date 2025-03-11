@@ -1,0 +1,9 @@
+name: drug2cell
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - git+https://github.com/velten-group/crispat
