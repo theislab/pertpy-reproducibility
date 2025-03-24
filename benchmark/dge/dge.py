@@ -5,6 +5,7 @@ from pathlib import Path
 import decoupler as dc
 import pertpy as pt
 import scanpy as sc
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -19,7 +20,12 @@ print(f"n_obs: {n_obs}")
 
 adata = pt.dt.zhang_2021()
 if n_obs:
-    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+    if n_obs < 3e6:
+        sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+    else:
+        # sample function fails for large n_obs
+        idx = np.random.choice(adata.obs.index, n_obs, replace=True)
+        adata = adata[idx, :]
 
 adata = adata[adata.obs["Origin"] == "t", :].copy()
 adata = adata[~adata.obs["Patient"].isin(["P010"])]

@@ -1,0 +1,15 @@
+name: dialogue_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base=4.4
+  - conda-forge::r-devtools
+  - conda-forge::zlib
+  - conda-forge::r-lme4
+  - conda-forge::r-lmerTest
+  - conda-forge::r-nloptr
+  - conda-forge::r-data.table
+  - conda-forge::r-hmisc
+# then manually devtools::install_github(repo = "https://github.com/livnatje/DIALOGUE")
+

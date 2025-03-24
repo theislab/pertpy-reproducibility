@@ -1,15 +1,18 @@
 # Load packages
-library(Seurat)
-library(SeuratData)
-library(ggplot2)
-library(patchwork)
-library(scales)
-library(dplyr)
-library(reshape2)
+suppressPackageStartupMessages({
+  library(Seurat)
+  library(SeuratData)
+  library(ggplot2)
+  library(patchwork)
+  library(scales)
+  library(dplyr)
+  library(reshape2)
+})
 
 # Load dataset
 InstallData(ds = "thp1.eccite")
 eccite <- LoadData(ds = "thp1.eccite")
+eccite <- UpdateSeuratObject(eccite)
 
 # Preprocessing
 # Protein
@@ -23,9 +26,16 @@ eccite <- NormalizeData(
 DefaultAssay(object = eccite) <- 'RNA'
 eccite <- NormalizeData(object = eccite) %>% FindVariableFeatures() %>% ScaleData()
 
-# Gene expression-based cell clustering umap
-eccite <- RunPCA(object = eccite)
-eccite <- RunUMAP(object = eccite, dims = 1:40)
+# Create a random matrix with one row per cell and 50 principal components
+set.seed(123)
+cells <- Cells(eccite)
+rand_mat <- matrix(rnorm(length(cells) * 50, 0, 1), nrow = length(cells), ncol = 50)
+rownames(rand_mat) <- cells
+eccite[["pca"]] <- CreateDimReducObject(
+  embeddings = rand_mat,
+  key = "PC_",
+  assay = DefaultAssay(eccite)
+)
 
 # Mitigating confounding effects
 eccite<- CalcPerturbSig(
@@ -39,25 +49,9 @@ eccite<- CalcPerturbSig(
   num.neighbors = 20,
   split.by = "replicate",
   new.assay.name = "PRTB")
-
 # Prepare PRTB assay for dimensionality reduction:
 # Normalize data, find variable features and center data
 DefaultAssay(object = eccite) <- 'PRTB'
-
-# Use variable features from RNA assay
-VariableFeatures(object = eccite) <- VariableFeatures(object = eccite[["RNA"]])
-eccite <- ScaleData(object = eccite, do.scale = F, do.center = T)
-
-# Run PCA to reduce the dimensionality of the data
-eccite <- RunPCA(object = eccite, reduction.key = 'prtbpca', reduction.name = 'prtbpca')
-
-# Run UMAP to visualize clustering in 2D
-eccite <- RunUMAP(
-  object = eccite,
-  dims = 1:40,
-  reduction = 'prtbpca',
-  reduction.key = 'prtbumap',
-  reduction.name = 'prtbumap')
 
 # identify cells with no detectable perturbation
 eccite <- RunMixscape(
@@ -72,18 +66,4 @@ eccite <- RunMixscape(
   verbose = F,
   prtb.type = "KO")
 
-# Remove non-perturbed cells
-Idents(eccite) <- "mixscape_class.global"
-sub <- subset(eccite, idents = c("KO", "NT"))
-
-# run LDA to reduce the dimensionality of the data
-sub <- MixscapeLDA(
-  object = sub,
-  assay = "RNA",
-  pc.assay = "PRTB",
-  labels = "gene",
-  nt.label = "NT",
-  npcs = 10,
-  logfc.threshold = 0.25,
-  verbose = F)
-
+file.create(snakemake@output[[1]])

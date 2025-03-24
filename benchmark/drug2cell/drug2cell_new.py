@@ -4,6 +4,7 @@ from pathlib import Path
 import blitzgsea as blitz
 import pertpy as pt
 import scanpy as sc
+import numpy as np
 
 # I/O
 if "snakemake" in locals():
@@ -14,7 +15,13 @@ else:
     n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
-sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+if n_obs:
+    if n_obs < 1e6:
+        sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+    else:
+        # sample function fails for large n_obs
+        idx = np.random.choice(adata.obs.index, n_obs, replace=True)
+        adata = adata[idx, :]
 
 pt_chembl = pt.md.Drug()
 pt_chembl.annotate(adata)

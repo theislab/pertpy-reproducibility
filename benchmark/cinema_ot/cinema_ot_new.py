@@ -2,6 +2,7 @@ import time
 from pathlib import Path
 
 import pertpy as pt
+import numpy as np
 import scanpy as sc
 
 # I/O
@@ -16,7 +17,8 @@ adata = pt.dt.cinemaot_example()
 sc.pp.sample(adata, n=n_obs, replace=True)
 adata.X = adata.raw.X.copy()
 
-sc.pp.pca(adata)
+# sc.pp.pca(adata)
+adata.obsm['X_pca'] = np.random.normal(size=(adata.n_obs, 30))
 
 cot = pt.tl.Cinemaot()
 # warm up cache & jit

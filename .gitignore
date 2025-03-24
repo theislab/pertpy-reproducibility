@@ -170,3 +170,5 @@ lightning_logs
 .snakemake
 benchmark/cache
 cache
+*.flag
+*.benchmark.tsv

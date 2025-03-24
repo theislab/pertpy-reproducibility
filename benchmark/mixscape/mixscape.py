@@ -48,10 +48,11 @@ sc.pp.scale(mdata["rna"], layer="scaled")
 # Protein
 mu.prot.pp.clr(mdata["adt"])
 
-# Gene expression-based cell clustering UMAP
-sc.pp.pca(mdata["rna"], n_comps=50, layer="scaled")
-sc.pp.neighbors(mdata["rna"], metric="cosine")
-sc.tl.umap(mdata["rna"])
+# Gene expression-based
+# sc.pp.pca(mdata["rna"], n_comps=50, layer="scaled")
+np.random.seed(123)
+random_pca = np.random.normal(loc=0, scale=1, size=(mdata["rna"].n_obs, 50))
+mdata["rna"].obsm["X_pca"] = random_pca
 
 # Mitigating confounding effects
 mixscape_identifier = pt.tl.Mixscape()
@@ -61,18 +62,11 @@ mixscape_identifier.perturbation_signature(
 
 adata_pert = mdata["rna"].copy()
 adata_pert.X = adata_pert.layers["X_pert"]
-sc.pp.pca(adata_pert)
-sc.pp.neighbors(adata_pert, metric="cosine")
-sc.tl.umap(adata_pert)
+# sc.pp.pca(adata_pert)
 
 # Identify cells with no detectable perturbation
 mixscape_identifier.mixscape(
     adata=mdata["rna"], control="NT", labels="gene_target", layer="X_pert"
-)
-
-# Visualizing perturbation responses with Linear Discriminant Analysis (LDA)
-mixscape_identifier.lda(
-    adata=mdata["rna"], control="NT", labels="gene_target"
 )
 
 if output:

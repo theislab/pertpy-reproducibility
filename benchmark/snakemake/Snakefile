@@ -1,43 +1,74 @@
+"""
+Snakemake file for benchmarking the different tools in pertpy vs original implementations.
+Author: Stefan Peidli
+Last Update: 24-03-2025
+Run as: snakemake --use-conda
+"""
 
+# Importing necessary libraries
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version
 
+# Load configuration file
 min_version("8.0.0")
 conda: "../environments/snake_env.yaml"
 configfile: "../configuration/config.yaml"
-TEMPDIR = Path(config["TEMPDIR"])
-
 def increment_memory(base_memory):
     def mem(wildcards, attempt):
         return base_memory * (2 ** (attempt - 1))
     return mem
+
+# Define global variables
+TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
-n_repeats_benchmark = 3
-maxtime_min = 30
-base_memory_mb = 64000
-grid = [1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000]
+n_repeats_benchmark = 4
+maxtime_min = 60 * 24 * 1  # in minutes
+base_memory_mb = 4 * 64000
+grid = [1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000]  # number of cells
 
 rule all:
     input:
-        # AUGUR
+        # AUGUR DONE
         expand("../results/augur_{n_sample}_{implementation}.csv", 
                n_sample=[0] + grid, 
                implementation=["py", "r"]),
+        # GUIDE ASSIGNMENT DONE
+        expand("../results/guide_assignment_{n_obs}.csv", 
+               n_obs=grid),  # fails for < 10000, too few cells
+        # CINEMAOT DONE
+        expand("../results/cinemaot_{implementation}_{n_obs}.flag", 
+               n_obs=grid,  # Exploding memory demands for both implementations
+               implementation=["pertpy", "original"]),
+        # DGE DONE
+        expand("../results/dge_{n_obs}.flag", 
+               n_obs=grid[1:]),  # needs enough cells; 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
+        # DRUG2CELL DONE
+        expand("../results/drug2cell_{implementation}_{n_obs}.flag", 
+               n_obs=grid,  # 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
+               implementation=["pertpy", "original"]),
+        # SCCODA DONE
+        expand("../results/sccoda_{implementation}_{n_obs}.flag", 
+               n_obs=grid,  # OOM at 3mio at 64GB
+               implementation=["pertpy", "original"]),
+        # PERTSPACE DONE
+        expand("../results/pertspace_{n_obs}.flag", 
+               n_obs=grid),  # needs enough cells; 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
+        # MIXSCAPE
+        expand("../results/mixscape_{implementation}_{n_obs}.flag", 
+               n_obs=grid[1:],  # needs more than 1000 cells, diverse issues at 100k and above
+               implementation=["pertpy", "original"]),
+        # DIALOGUE
+        expand("../results/dialogue_{implementation}_{n_obs}.flag", 
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
         # MILO
-        expand("../results/milo_{n_sample}_r.csv",
-               n_sample=[0] + grid),
+        # Gives ValueError: negative dimensions are not allowed at 3mio
+        # R version runs veeery slow
+        # expand("../results/milo_{n_sample}_r.csv",
+        #        n_sample=[0] + grid),
         expand(TEMPDIR / "milo_{n_sample}_py.h5mu",
                n_sample=[0] + grid),
-        # GUIDE ASSIGNMENT
-        expand("../results/guide_assignment_{n_obs}.csv", 
-               n_obs=grid),
-        # ETC
-        expand("../results/{implementation}_{n_obs}.flag", 
-               n_obs=grid,
-               implementation=["cinemaot_pertpy", "cinemaot_original", "pertspace", 
-               "dge", "mixscape_pertpy", "drug2cell_pertpy", "drug2cell_original", 
-               "sccoda_pertpy", "sccoda_original"]),
 ## AUGUR
 rule augur_pertpy:
     output:
@@ -49,7 +80,7 @@ rule augur_pertpy:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../augur/augur.py"
 
 rule augur_original:
@@ -62,7 +93,7 @@ rule augur_original:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../augur/augur.R"
 
 ## MILO
@@ -75,8 +106,7 @@ rule milo_prepare_data:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     conda: "../environments/pertpy_env.yaml"
     script: "../milo/milo_prepare.py"
 
@@ -92,8 +122,7 @@ rule milo_py:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../milo/milo.py"
 
 rule milo_r:
@@ -111,8 +140,7 @@ rule milo_r:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../milo/milo.R"
 
 ## GUIDE ASSIGNMENT
@@ -125,8 +153,7 @@ rule guide_assignment:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../guide_assignment/guide_assignment.py"
 
 ## CINEMAOT
@@ -139,8 +166,7 @@ rule cinemaot_pertpy:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../cinema_ot/cinema_ot_new.py"
 
 rule cinemaot_original:
@@ -152,8 +178,7 @@ rule cinemaot_original:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../cinema_ot/cinema_ot_old.py"
 
 ## PERTSPACE
@@ -166,37 +191,46 @@ rule pertspace:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../pert_space/pert_space.py"
 
 ## DGE
 rule dge:
     output:
         "../results/dge_{n_obs}.flag"
-    conda: "pertpy_dev"  # ../dge/dge.yaml"  # NOTE: had to manually install
+    conda: "pertpy_dev"
     benchmark:
         repeat("benchmarks/dge.{n_obs}.benchmark.tsv", n_repeats_benchmark)
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../dge/dge.py"
 
 ## MIXSCAPE
 rule mixscape_pertpy:
     output:
         "../results/mixscape_pertpy_{n_obs}.flag"
-    conda: "pertpy_dev" # "../environments/pertpy_env.yaml"  #  TODO: GIves TypeError: NNDescent.__init__() got an unexpected keyword argument 'n_dims'. Need specific pynndescent version
+    conda: "pertpy_dev" # "../environments/pertpy_env.yaml"
     benchmark:
         repeat("benchmarks/mixscape.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../mixscape/mixscape.py"
+
+rule mixscape_original:
+    output:
+        "../results/mixscape_original_{n_obs}.flag"
+    conda: "mixscape_env" # "../mixscape/mixscape.yaml"
+    benchmark:
+        repeat("benchmarks/mixscape.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../mixscape/mixscape.R"
 
 ## DRUG2CELL
 rule drug2cell_pertpy:
@@ -208,8 +242,7 @@ rule drug2cell_pertpy:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../drug2cell/drug2cell_new.py"
 
 rule drug2cell_original:
@@ -221,8 +254,7 @@ rule drug2cell_original:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../drug2cell/drug2cell_old.py"
 
 ## SCCODA
@@ -235,8 +267,7 @@ rule sccoda_pertpy:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../sccoda/sccoda_new.py"
 
 rule sccoda_original:
@@ -248,8 +279,38 @@ rule sccoda_original:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        disk_mb=64000,
-        time=maxtime_min
+        runtime=maxtime_min
     script: "../sccoda/sccoda_old.py"
 
-# TODO: Add tool:Dialog, waiting for Yuge
+## DIALOGUE
+rule dialogue_get_rds:
+    output:
+        rA=TEMPDIR / "dialogue/test.example.rds"
+    shell:
+        "wget https://github.com/livnatje/DIALOGUE/blob/master/Data/test.example.rds?raw=true -O {output}"
+
+rule dialogue_pertpy:
+    output:
+        "../results/dialogue_pertpy_{n_obs}.flag"
+    conda: "pertpy_dev"
+    benchmark:
+        repeat("benchmarks/dialogue.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../dialogue/dialogue.py"
+
+rule dialogue_original:
+    input:
+        rA=TEMPDIR / "dialogue/test.example.rds"
+    output:
+        "../results/dialogue_original_{n_obs}.flag"
+    conda: "dialogue_env"#"../dialogue/dialogue_env.yaml"  # needs manual installation
+    benchmark:
+        repeat("benchmarks/dialogue.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../dialogue/dialogue.R"
