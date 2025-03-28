@@ -11,5 +11,6 @@ dependencies:
   - conda-forge::r-nloptr
   - conda-forge::r-data.table
   - conda-forge::r-hmisc
+  - conda-forge::r-nnls
 # then manually devtools::install_github(repo = "https://github.com/livnatje/DIALOGUE")
 
