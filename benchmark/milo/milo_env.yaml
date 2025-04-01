@@ -8,6 +8,8 @@ dependencies:
   - conda-forge::r-systemfonts
   - conda-forge::libxml2
   - bioconda::bioconductor-milor==2.2.0
+  - bioconda::bioconductor-scater
+  - bioconda::bioconductor-scran
   - pip
   - pip:
       - pertpy[de]==0.10.0

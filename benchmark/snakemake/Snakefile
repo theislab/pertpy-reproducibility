@@ -1,8 +1,8 @@
 """
 Snakemake file for benchmarking the different tools in pertpy vs original implementations.
 Author: Stefan Peidli
-Last Update: 24-03-2025
-Run as: snakemake --use-conda
+Last Update: 31-03-2025
+Run as: snakemake --use-conda --default-resources slurm_partition=bigmem
 """
 
 # Importing necessary libraries
@@ -24,7 +24,7 @@ TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
 n_repeats_benchmark = 4
 maxtime_min = 60 * 24 * 1  # in minutes
-base_memory_mb = 4 * 64000
+base_memory_mb = 500000
 grid = [1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000]  # number of cells
 
 rule all:
@@ -42,7 +42,7 @@ rule all:
                implementation=["pertpy", "original"]),
         # DGE DONE
         expand("../results/dge_{n_obs}.flag", 
-               n_obs=grid[1:]),  # needs enough cells; 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
+               n_obs=grid),  # needs enough cells; 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
         # DRUG2CELL DONE
         expand("../results/drug2cell_{implementation}_{n_obs}.flag", 
                n_obs=grid,  # 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
@@ -56,19 +56,18 @@ rule all:
                n_obs=grid),  # needs enough cells; 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
         # MIXSCAPE
         expand("../results/mixscape_{implementation}_{n_obs}.flag", 
-               n_obs=grid[1:],  # needs more than 1000 cells, diverse issues at 100k and above
+               n_obs=grid,  # needs more than 1000 cells, diverse issues at 100k and above
                implementation=["pertpy", "original"]),
         # DIALOGUE
         expand("../results/dialogue_{implementation}_{n_obs}.flag", 
                n_obs=grid,
                implementation=["pertpy", "original"]),
         # MILO
-        # Gives ValueError: negative dimensions are not allowed at 3mio
-        # R version runs veeery slow
-        # expand("../results/milo_{n_sample}_r.csv",
-        #        n_sample=[0] + grid),
+        expand("../results/milo_original_{n_obs}.flag",
+               n_obs=grid),
         expand(TEMPDIR / "milo_{n_sample}_py.h5mu",
                n_sample=[0] + grid),
+
 ## AUGUR
 rule augur_pertpy:
     output:
@@ -80,7 +79,7 @@ rule augur_pertpy:
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
-        runtime=maxtime_min
+        runtime=maxtime_min,
     script: "../augur/augur.py"
 
 rule augur_original:
@@ -100,9 +99,10 @@ rule augur_original:
 rule milo_prepare_data:
     output:
         h5ad=TEMPDIR / "milo_data_{n_sample}.h5ad",
+        mtx=TEMPDIR / "milo_data_{n_sample}.mtx",
         obs=TEMPDIR / "milo_obs_{n_sample}.csv",
         obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_sample}.csv",
-        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv"
+        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv",
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
@@ -126,16 +126,11 @@ rule milo_py:
     script: "../milo/milo.py"
 
 rule milo_r:
-    input:
-        obs=TEMPDIR / "milo_obs_{n_sample}.csv",
-        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_sample}.csv",
-        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv"
     output:
-        milo_res="../results/milo_{n_sample}_r.csv",
-        milo_res_graph="../results/milo_{n_sample}_nhoods.mtx"
+        "../results/milo_original_{n_obs}.flag"
     conda: "milo_env" # "../environments/milo_env.yaml"
     benchmark:
-        repeat("benchmarks/milo.{n_sample}.original.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/milo.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
     threads: 16
     retries: retries
     resources:

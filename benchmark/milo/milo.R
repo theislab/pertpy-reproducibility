@@ -5,39 +5,43 @@ suppressPackageStartupMessages({
     library(Matrix)
 })
 
-# Construct SCE object with empry counts and logcounts
-obs <- read.csv(snakemake@input$obs)
-obsm_scvi <- read.csv(snakemake@input$obsm_scvi)
-obsm_umap <- read.csv(snakemake@input$obsm_umap)
-sce <- SingleCellExperiment(
-    colData = obs,
-    reducedDims = list(
-        scvi = as.matrix(obsm_scvi),
-        umap = as.matrix(obsm_umap)
-    )
-)
-counts(sce) <- NULL
-logcounts(sce) <- NULL
+flag <- snakemake@output[[1]]
+target_n <- as.integer(snakemake@wildcards$n_obs)
 
-milo.obj <- Milo(sce)
-milo.obj <- buildGraph(milo.obj, k=150, d=10, reduced.dim="scvi")
-milo.obj <- makeNhoods(milo.obj, k=150, d=10, refined=TRUE, prop=0.1, refinement_scheme="graph")
+# Prepare data
+data("sim_trajectory", package = "miloR")
+## Extract SingleCellExperiment object
+traj_sce <- sim_trajectory[['SCE']]
+colData(traj_sce) <- DataFrame(sim_trajectory[["meta"]])
+colnames(traj_sce) <- colData(traj_sce)$cell_id
+redim <- reducedDim(traj_sce, "PCA")
+dimnames(redim) <- list(colnames(traj_sce), paste0("PC", c(1:50)))
+reducedDim(traj_sce, "PCA") <- redim 
 
-patient_metadata <- data.frame(colData(sce)) %>%
-    dplyr::select(patient_id, Status, Site)
-milo.obj <- countCells(milo.obj, samples="patient_id", meta.data=patient_metadata)
+# Upsample
+new_indices <- sample(seq_len(ncol(traj_sce)), size = target_n, replace = TRUE)
+traj_sce_upsampled <- traj_sce[, new_indices]
 
-design_df <- patient_metadata %>% distinct()
-rownames(design_df) <- design_df$patient_id
-design_df$Status <- factor(design_df$Status, levels=c('Healthy', 'Covid'))
+# Run Milo
+traj_milo <- Milo(traj_sce_upsampled)
+traj_milo <- buildGraph(traj_milo, k=150, d=10, reduced.dim="PCA")
+traj_milo <- makeNhoods(traj_milo, k=15, d=10, refined=TRUE, prop=0.01, refinement_scheme="graph")
+traj_milo <- countCells(traj_milo, meta.data = data.frame(colData(traj_milo)), samples="Sample")
 
+# Define Design
+traj_design <- data.frame(colData(traj_milo))[,c("Sample", "Condition")]
+traj_design <- distinct(traj_design)
+rownames(traj_design) <- traj_design$Sample
+traj_design <- traj_design[colnames(nhoodCounts(traj_milo)), , drop=FALSE]
+da_results <- testNhoods(traj_milo, design = ~ Condition, design.df = traj_design)
+
+# Do testing
 milo_res <- testNhoods(
-    milo.obj,
-    design=~Site+Status,
-    design.df=design_df,
-    reduced.dim="scvi",
+    traj_milo,
+    design=~Condition,
+    design.df=traj_design,
+    reduced.dim="PCA",
     fdr.weighting="graph-overlap"
 )
 
-write.csv(milo_res, snakemake@output$milo_res)
-Matrix::writeMM(nhoods(milo.obj), snakemake@output$milo_res_graph)
+file.create(flag)

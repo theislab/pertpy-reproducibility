@@ -3,9 +3,11 @@
 import pertpy as pt
 import scanpy as sc
 import pandas as pd
+from scipy.io import mmwrite
 
 # I/O
 output_h5ad = snakemake.output.h5ad
+output_mtx = snakemake.output.mtx
 output_obs = snakemake.output.obs
 output_obsm_scvi = snakemake.output.obsm_scvi
 output_obsm_umap = snakemake.output.obsm_umap
@@ -24,7 +26,8 @@ obsm_scvi = pd.DataFrame(adata.obsm["X_scVI"].copy(), index=adata.obs_names)
 obsm_umap = pd.DataFrame(adata.obsm["X_umap"].copy(), index=adata.obs_names)
 
 # Save
-adata.write(output_h5ad)
+mmwrite(output_mtx, adata.X)
+adata.write_h5ad(output_h5ad)
 obs.to_csv(output_obs)
 obsm_scvi.to_csv(output_obsm_scvi)
 obsm_umap.to_csv(output_obsm_umap)
