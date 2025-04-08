@@ -16,12 +16,9 @@ else:
 
 adata = sc.datasets.pbmc3k_processed()
 if n_obs:
-    if n_obs < 1e6:
-        sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
-    else:
-        # sample function fails for large n_obs
-        idx = np.random.choice(adata.obs.index, n_obs, replace=True)
-        adata = adata[idx, :]
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+# adata.obs_names = pd.RangeIndex(start=0, stop=adata.shape[0], step=1)
+adata.obs_names_make_unique()  # throws error with many cells
 
 pt_chembl = pt.md.Drug()
 pt_chembl.annotate(adata)

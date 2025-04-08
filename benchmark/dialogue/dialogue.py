@@ -17,13 +17,8 @@ adata.obs["dlg_sample"] = ["_".join(x.split(".")[:-1]) for x in adata.obs.index]
 adata.obs["dlg_sample"] = adata.obs["dlg_sample"].astype("category")
 
 if n_obs:
-    if n_obs < 1e6:
-        sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
-    else:
-        # sample function fails for large n_obs
-        idx = np.random.choice(adata.obs.index, n_obs, replace=True)
-        adata = adata[idx, :]
-adata.obs_names_make_unique()
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+adata.obs_names_make_unique()  # throws error with many cells
 # Random PCA
 adata.obsm['X_pca'] = np.random.normal(size=(adata.n_obs, 30))
 

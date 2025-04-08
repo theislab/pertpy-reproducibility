@@ -23,15 +23,15 @@ def increment_memory(base_memory):
 TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
 n_repeats_benchmark = 4
-maxtime_min = 60 * 24 * 1  # in minutes
-base_memory_mb = 500000
-grid = [1000, 5000, 10000, 50000, 100000, 500000, 1000000, 3000000]  # number of cells
+maxtime_min = 60 * 24 * 2  # in minutes
+base_memory_mb = 256000
+grid = [5000, 10000, 50000, 100000, 500000, 1000000]  # number of cells
 
 rule all:
     input:
         # AUGUR DONE
         expand("../results/augur_{n_sample}_{implementation}.csv", 
-               n_sample=[0] + grid, 
+               n_sample=grid, 
                implementation=["py", "r"]),
         # GUIDE ASSIGNMENT DONE
         expand("../results/guide_assignment_{n_obs}.csv", 
@@ -66,7 +66,7 @@ rule all:
         expand("../results/milo_original_{n_obs}.flag",
                n_obs=grid),
         expand(TEMPDIR / "milo_{n_sample}_py.h5mu",
-               n_sample=[0] + grid),
+               n_sample=grid),
 
 ## AUGUR
 rule augur_pertpy:

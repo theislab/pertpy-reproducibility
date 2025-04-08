@@ -39,14 +39,14 @@ if n_obs:
 
 # Preprocessing
 # RNA
-sc.pp.highly_variable_genes(mdata["rna"], n_top_genes=2000, flavor='seurat_v3', subset=True)
-sc.pp.normalize_total(mdata["rna"])
-sc.pp.log1p(mdata["rna"])
-mdata["rna"].layers["scaled"] = mdata["rna"].X.copy()
-sc.pp.scale(mdata["rna"], layer="scaled")
+# sc.pp.highly_variable_genes(mdata["rna"], n_top_genes=2000, flavor='seurat_v3', subset=True)
+# sc.pp.normalize_total(mdata["rna"])
+# sc.pp.log1p(mdata["rna"])
+# mdata["rna"].layers["scaled"] = mdata["rna"].X.copy()
+# sc.pp.scale(mdata["rna"], layer="scaled")
 
 # Protein
-mu.prot.pp.clr(mdata["adt"])
+# mu.prot.pp.clr(mdata["adt"])
 
 # Gene expression-based
 # sc.pp.pca(mdata["rna"], n_comps=50, layer="scaled")

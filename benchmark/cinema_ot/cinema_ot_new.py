@@ -15,6 +15,9 @@ else:
 
 adata = pt.dt.cinemaot_example()
 sc.pp.sample(adata, n=n_obs, replace=True)
+# adata.obs_names = pd.RangeIndex(start=0, stop=adata.shape[0], step=1)
+adata.obs_names_make_unique()  # throws error with many cells
+
 adata.X = adata.raw.X.copy()
 
 # sc.pp.pca(adata)
