@@ -1,10 +1,11 @@
 import time
+from pathlib import Path
 
 import pertpy as pt
 import scanpy as sc
 
 # I/O
-n_sample = int(snakemake.wildcards.n_sample)
+n_obs = int(snakemake.wildcards.n_obs)
 output = snakemake.output[0]
 adata = sc.read(snakemake.input[0])
 
@@ -18,4 +19,5 @@ mdata = milo.count_nhoods(mdata, sample_col="patient_id")
 mdata["rna"].obs["Status"] = mdata["rna"].obs["Status"].cat.reorder_categories(["Healthy", "Covid"])
 milo.da_nhoods(mdata, design="~Site+Status", model_contrasts="StatusCovid")
 
-mdata.write_h5mu(output)
+if output:
+    Path(output).touch()

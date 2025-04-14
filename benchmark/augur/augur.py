@@ -1,20 +1,19 @@
+import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-import pertpy as pt
-import scanpy as sc
-import pandas as pd
-import numpy as np
+from pertpy.tl import Augur
+from pertpy.dt import sc_sim_augur
+from scanpy import read_h5ad
+from Anndata import AnnData
+from pathlib import Path
 
 # I/O
-n_sample = int(snakemake.wildcards.n_sample)
+input = snakemake.input[0]
 output = snakemake.output[0]
 
 # load data
-adata = pt.dt.sc_sim_augur()
-if n_sample != 0:
-    sc.pp.sample(adata, n=n_sample, rng=0, replace=True)
-adata.obs_names_make_unique()
-ag_rfc = pt.tl.Augur("random_forest_classifier")
+adata = read_h5ad(input)
+ag_rfc = Augur("random_forest_classifier")
 loaded_data = ag_rfc.load(adata)
 
 v_adata, v_results = ag_rfc.predict(loaded_data, 
@@ -23,4 +22,6 @@ v_adata, v_results = ag_rfc.predict(loaded_data,
                                     augur_mode='default', 
                                     select_variance_features=True)
 print(v_results["summary_metrics"])
-v_results["summary_metrics"].to_csv(output)
+
+if output:
+    Path(output).touch()

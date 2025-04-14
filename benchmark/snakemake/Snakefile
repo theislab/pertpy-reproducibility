@@ -1,8 +1,8 @@
 """
 Snakemake file for benchmarking the different tools in pertpy vs original implementations.
 Author: Stefan Peidli
-Last Update: 31-03-2025
-Run as: snakemake --use-conda --default-resources slurm_partition=bigmem
+Last Update: 14-04-2025
+Run as: snakemake --use-conda --default-resources slurm_partition=bigmem slurm_constraint=turin
 """
 
 # Importing necessary libraries
@@ -23,37 +23,36 @@ def increment_memory(base_memory):
 TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
 n_repeats_benchmark = 4
-maxtime_min = 60 * 24 * 2  # in minutes
-base_memory_mb = 256000
+maxtime_min = 60 * 24 * 1  # in minutes
+base_memory_mb = 500000
 grid = [5000, 10000, 50000, 100000, 500000, 1000000]  # number of cells
 
 rule all:
     input:
-        # AUGUR DONE
-        expand("../results/augur_{n_sample}_{implementation}.csv", 
-               n_sample=grid, 
-               implementation=["py", "r"]),
-        # GUIDE ASSIGNMENT DONE
+        # AUGUR
+        expand("../results/augur_{implementation}_{n_obs}.flag", 
+               n_obs=grid, 
+               implementation=["pertpy", "original"]),
+        # GUIDE ASSIGNMENT
         expand("../results/guide_assignment_{n_obs}.csv", 
                n_obs=grid),  # fails for < 10000, too few cells
-        # CINEMAOT DONE
+        # CINEMAOT
         expand("../results/cinemaot_{implementation}_{n_obs}.flag", 
                n_obs=grid,  # Exploding memory demands for both implementations
                implementation=["pertpy", "original"]),
-        # DGE DONE
+        # DGE
         expand("../results/dge_{n_obs}.flag", 
                n_obs=grid),  # needs enough cells; 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
-        # DRUG2CELL DONE
+        # DRUG2CELL
         expand("../results/drug2cell_{implementation}_{n_obs}.flag", 
                n_obs=grid,  # 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
                implementation=["pertpy", "original"]),
-        # SCCODA DONE
+        # SCCODA
         expand("../results/sccoda_{implementation}_{n_obs}.flag", 
                n_obs=grid,  # OOM at 3mio at 64GB
                implementation=["pertpy", "original"]),
-        # PERTSPACE DONE
-        expand("../results/pertspace_{n_obs}.flag", 
-               n_obs=grid),  # needs enough cells; 1mio and 3mio yields "ValueError: negative dimensions are not allowed" in sc.pp.sample
+        # PERTSPACE
+        expand("../results/pertspace_{n_obs}.flag", n_obs=grid),
         # MIXSCAPE
         expand("../results/mixscape_{implementation}_{n_obs}.flag", 
                n_obs=grid,  # needs more than 1000 cells, diverse issues at 100k and above
@@ -63,18 +62,26 @@ rule all:
                n_obs=grid,
                implementation=["pertpy", "original"]),
         # MILO
-        expand("../results/milo_original_{n_obs}.flag",
-               n_obs=grid),
-        expand(TEMPDIR / "milo_{n_sample}_py.h5mu",
-               n_sample=grid),
+        expand("../results/milo_{implementation}_{n_obs}.flag",
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
 
 ## AUGUR
+rule augur_prepare_data:
+    output:
+        h5ad=TEMPDIR / "augur_data_{n_obs}.h5ad"
+    conda: "../environments/pertpy_env.yaml"
+    resources:
+        mem_mb=64000,
+        runtime=60,
+    script: "../augur/augur_prepare_data.py"
+
 rule augur_pertpy:
     output:
-        "../results/augur_{n_sample}_py.csv",
+        "../results/augur_pertpy_{n_obs}.flag",
     conda: "../environments/pertpy_env.yaml"
     benchmark:
-        repeat("benchmarks/augur.{n_sample}.pertpy.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/augur.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     threads: 16
     retries: retries
     resources:
@@ -84,10 +91,10 @@ rule augur_pertpy:
 
 rule augur_original:
     output:
-        out_sim = "../results/augur_{n_sample}_r.csv",
+        "../results/augur_original_{n_obs}.flag",
     conda: "augur_env"  # "../environments/augur_env.yaml"
     benchmark:
-        repeat("benchmarks/augur.{n_sample}.original.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/augur.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
     threads: 16
     retries: retries
     resources:
@@ -98,11 +105,11 @@ rule augur_original:
 ## MILO
 rule milo_prepare_data:
     output:
-        h5ad=TEMPDIR / "milo_data_{n_sample}.h5ad",
-        mtx=TEMPDIR / "milo_data_{n_sample}.mtx",
-        obs=TEMPDIR / "milo_obs_{n_sample}.csv",
-        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_sample}.csv",
-        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_sample}.csv",
+        h5ad=TEMPDIR / "milo_data_{n_obs}.h5ad",
+        mtx=TEMPDIR / "milo_data_{n_obs}.mtx",
+        obs=TEMPDIR / "milo_obs_{n_obs}.csv",
+        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_obs}.csv",
+        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_obs}.csv",
     retries: retries
     resources:
         mem_mb=increment_memory(base_memory_mb),
@@ -112,12 +119,12 @@ rule milo_prepare_data:
 
 rule milo_py:
     input:
-        h5ad=TEMPDIR / "milo_data_{n_sample}.h5ad",
+        h5ad=TEMPDIR / "milo_data_{n_obs}.h5ad",
     output:
-        milo_res=TEMPDIR / "milo_{n_sample}_py.h5mu"
+        "../results/milo_pertpy_{n_obs}.flag"
     conda: "../milo/milo_env.yaml"
     benchmark:
-        repeat("benchmarks/milo.{n_sample}.pertpy.benchmark.tsv", n_repeats_benchmark)
+        repeat("benchmarks/milo.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     threads: 16
     retries: retries
     resources:
@@ -203,7 +210,18 @@ rule dge:
     script: "../dge/dge.py"
 
 ## MIXSCAPE
+rule mixscape_prepare_data:
+    output:
+        h5ad=TEMPDIR / "mixscape_data_{n_obs}.h5ad"
+    conda: "../environments/pertpy_env.yaml"
+    resources:
+        mem_mb=64000,
+        runtime=60,
+    script: "../mixscape/mixscape_prepare_data.py"
+
 rule mixscape_pertpy:
+    input:
+        h5ad=TEMPDIR / "mixscape_data_{n_obs}.h5ad"
     output:
         "../results/mixscape_pertpy_{n_obs}.flag"
     conda: "pertpy_dev" # "../environments/pertpy_env.yaml"

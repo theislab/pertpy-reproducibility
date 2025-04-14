@@ -17,7 +17,7 @@ else:
 adata = sc.datasets.pbmc3k_processed()
 if n_obs:
     sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
-# adata.obs_names = pd.RangeIndex(start=0, stop=adata.shape[0], step=1)
+
 adata.obs_names_make_unique()  # throws error with many cells
 
 pt_chembl = pt.md.Drug()

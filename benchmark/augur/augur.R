@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
 
 # I/O
 out_sim <- snakemake@output$out_sim
-target_n <- as.integer(snakemake@wildcards$n_sample)
+target_n <- as.integer(snakemake@wildcards$n_obs)
 
 # load data
 data("sc_sim")
@@ -46,4 +46,6 @@ augur = calculate_auc(sc_sim_upsampled,
                         select_var = T,
                         augur_mode='default'
                         )
-write.csv(augur$AUC, out_sim)
+
+# Set flag
+file.create(snakemake@output[[1]])
