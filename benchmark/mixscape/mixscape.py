@@ -1,5 +1,5 @@
 from pathlib import Path
-from pertpy.tl import Mixscape
+from pertpy.tools import Mixscape
 from scanpy import AnnData, read_h5ad
 
 # I/O

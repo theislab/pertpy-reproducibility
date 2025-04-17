@@ -20,7 +20,6 @@ adata.obs_names_make_unique()  # throws error with many cells
 
 adata.X = adata.raw.X.copy()
 
-# sc.pp.pca(adata)
 adata.obsm['X_pca'] = np.random.normal(size=(adata.n_obs, 30))
 
 cot = pt.tl.Cinemaot()

@@ -18,7 +18,6 @@ adata = pt.dt.cinemaot_example()
 sc.pp.sample(adata, n=n_obs, replace=True)
 adata.X = adata.raw.X.copy()
 
-# sc.pp.pca(adata)
 adata.obsm['X_pca'] = np.random.normal(size=(adata.n_obs, 30))
 
 start = time.time()

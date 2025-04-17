@@ -261,7 +261,7 @@ rule drug2cell_pertpy:
 rule drug2cell_original:
     output:
         "../results/drug2cell_original_{n_obs}.flag"
-    conda: "pertpy_dev"#  "../drug2cell/drug2cell.yaml"
+    conda: "../drug2cell/drug2cell.yaml"  #"pertpy_dev"
     benchmark:
         repeat("benchmarks/drug2cell.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
     retries: retries

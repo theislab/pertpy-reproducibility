@@ -11,15 +11,15 @@ output_mtx = snakemake.output.mtx
 output_obs = snakemake.output.obs
 output_obsm_scvi = snakemake.output.obsm_scvi
 output_obsm_umap = snakemake.output.obsm_umap
-n_sample = int(snakemake.wildcards.n_sample)
-print(f"Subsampling {n_sample} cells")
+n_obs = int(snakemake.wildcards.n_obs)
+print(f"Subsampling {n_obs} cells")
 
 adata = pt.dt.stephenson_2021_subsampled()
 adata = adata[adata.obs["Status"] != "LPS"].copy()
 
 # Subsample
-if n_sample != 0:
-    sc.pp.sample(adata, n=n_sample, rng=0, replace=True)
+if n_obs != 0:
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
 adata.obs_names_make_unique()
 obs = adata.obs.copy()
 obsm_scvi = pd.DataFrame(adata.obsm["X_scVI"].copy(), index=adata.obs_names)

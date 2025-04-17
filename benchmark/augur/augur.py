@@ -1,8 +1,8 @@
 import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-from pertpy.tl import Augur
-from pertpy.dt import sc_sim_augur
+from pertpy.tools import Augur
+from pertpy.data import sc_sim_augur
 from scanpy import read_h5ad
 from Anndata import AnnData
 from pathlib import Path

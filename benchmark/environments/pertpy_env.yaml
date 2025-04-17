@@ -6,6 +6,9 @@ dependencies:
   - conda-forge::jupyter
   - conda-forge::ipykernel
   - conda-forge::muon
+  - conda-forge::anndata
   - pip:
-    - pertpy
+    - git+https://github.com/scverse/pertpy.git
     - scanpy>=1.11.0  # needed for upsampling
+    - formulaic
+    - pydeseq2
