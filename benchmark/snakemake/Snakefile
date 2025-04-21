@@ -1,8 +1,8 @@
 """
 Snakemake file for benchmarking the different tools in pertpy vs original implementations.
 Author: Stefan Peidli
-Last Update: 14-04-2025
-Run as: snakemake --use-conda --default-resources slurm_partition=bigmem slurm_constraint=turin
+Last Update: 21-04-2025
+Run as: snakemake --use-conda --default-resources slurm_partition=bigmem slurm_constraint=turin slurm_account=huber
 """
 
 # Importing necessary libraries
@@ -23,9 +23,9 @@ def increment_memory(base_memory):
 TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
 n_repeats_benchmark = 4
-maxtime_min = 60 * 24 * 1  # in minutes
+maxtime_min = 60 #* 24 * 1  # in minutes
 base_memory_mb = 500000
-grid = [5000, 10000, 50000, 100000, 500000, 1000000]  # number of cells
+grid = [5000]#, 10000, 50000, 100000, 500000, 1000000]  # number of cells
 
 rule all:
     input:
@@ -77,6 +77,8 @@ rule augur_prepare_data:
     script: "../augur/augur_prepare_data.py"
 
 rule augur_pertpy:
+    input:
+        h5ad=TEMPDIR / "augur_data_{n_obs}.h5ad"
     output:
         "../results/augur_pertpy_{n_obs}.flag",
     conda: "../environments/pertpy_env.yaml"
@@ -162,7 +164,7 @@ rule guide_assignment:
 rule cinemaot_pertpy:
     output:
         "../results/cinemaot_pertpy_{n_obs}.flag"
-    conda: "../environments/pertpy_env.yaml"
+    conda: "../cinema_ot/cinema_ot_pertpy.yaml"
     benchmark:
         repeat("benchmarks/cinemaot.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries
@@ -200,7 +202,7 @@ rule pertspace:
 rule dge:
     output:
         "../results/dge_{n_obs}.flag"
-    conda: "pertpy_dev"
+    conda: "pertpy_dev"  # "dge_env.yaml"
     benchmark:
         repeat("benchmarks/dge.{n_obs}.benchmark.tsv", n_repeats_benchmark)
     retries: retries
@@ -224,7 +226,7 @@ rule mixscape_pertpy:
         h5ad=TEMPDIR / "mixscape_data_{n_obs}.h5ad"
     output:
         "../results/mixscape_pertpy_{n_obs}.flag"
-    conda: "pertpy_dev" # "../environments/pertpy_env.yaml"
+    conda: "../environments/pertpy_env.yaml"
     benchmark:
         repeat("benchmarks/mixscape.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries

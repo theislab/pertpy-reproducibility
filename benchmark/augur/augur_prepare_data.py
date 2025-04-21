@@ -1,8 +1,8 @@
 import warnings
 warnings.filterwarnings("ignore")
-from pertpy.dt import sc_sim_augur
+from pertpy.data import sc_sim_augur
 from scanpy.pp import sample
-from Anndata import AnnData
+from anndata import AnnData
 import pandas as pd
 
 # I/O
