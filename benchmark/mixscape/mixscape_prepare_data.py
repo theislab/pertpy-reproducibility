@@ -22,6 +22,10 @@ if n_obs:
     adata.obs_names_make_unique()
     del mdata
 
+sc.pp.highly_variable_genes(adata, n_top_genes=2000, flavor='seurat_v3', subset=True)
+sc.pp.normalize_total(adata)
+sc.pp.log1p(adata)
+
 # Randomly generate PCA data
 np.random.seed(123)
 random_pca = np.random.normal(loc=0, scale=1, size=(adata.n_obs, 50))
