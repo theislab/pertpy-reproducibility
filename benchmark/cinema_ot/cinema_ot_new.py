@@ -36,7 +36,8 @@ de = cot.causaleffect(
     smoothness=3e-5,
     eps=1e-3,
     solver="Sinkhorn",
-    preweight_label="cell_type0528",
+    preweight_label=None,
+    # preweight_label="cell_type0528",
 )
 
 start_2 = time.time()
@@ -50,7 +51,8 @@ de = cot.causaleffect(
     smoothness=3e-5,
     eps=1e-3,
     solver="Sinkhorn",
-    preweight_label="cell_type0528",
+    preweight_label=None,
+    # preweight_label="cell_type0528",
 )
 
 print("Time taken entire script: ", time.time() - start)
