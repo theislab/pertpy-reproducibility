@@ -23,7 +23,7 @@ def increment_memory(base_memory):
 TEMPDIR = Path(config["TEMPDIR"])
 retries = 1
 n_repeats_benchmark = 4
-maxtime_min = 60 * 12#24 * 1  # in minutes
+maxtime_min = 60 * 24 * 2  # in minutes
 base_memory_mb = 500000
 grid = [5000, 10000, 50000, 100000, 500000, 1000000]  # number of cells
 
