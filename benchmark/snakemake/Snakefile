@@ -38,14 +38,14 @@ rule all:
                n_obs=grid),
         # CINEMAOT
         expand("../results/cinemaot_{implementation}_{n_obs}.flag", 
-               n_obs=grid,
+               n_obs=grid[:-1],
                implementation=["pertpy", "original"]),
         # DGE
         expand("../results/dge_{n_obs}.flag", 
                n_obs=grid),
         # DRUG2CELL
         expand("../results/drug2cell_{implementation}_{n_obs}.flag", 
-               n_obs=grid,
+               n_obs=grid[:-1],
                implementation=["pertpy", "original"]),
         # SCCODA
         expand("../results/sccoda_{implementation}_{n_obs}.flag", 
@@ -55,7 +55,7 @@ rule all:
         expand("../results/pertspace_{n_obs}.flag", n_obs=grid[:-1]),
         # MIXSCAPE
         expand("../results/mixscape_{implementation}_{n_obs}.flag", 
-               n_obs=grid,
+               n_obs=grid[:-1],
                implementation=["pertpy", "original"]),
         # DIALOGUE
         expand("../results/dialogue_{implementation}_{n_obs}.flag", 
@@ -164,7 +164,7 @@ rule guide_assignment:
 rule cinemaot_pertpy:
     output:
         "../results/cinemaot_pertpy_{n_obs}.flag"
-    conda: "../cinema_ot/cinema_ot_pertpy.yaml"
+    conda: "../environments/pertpy_env.yaml"
     benchmark:
         repeat("benchmarks/cinemaot.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     retries: retries
