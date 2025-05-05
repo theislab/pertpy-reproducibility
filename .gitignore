@@ -172,3 +172,4 @@ benchmark/cache
 cache
 *.flag
 *.benchmark.tsv
+*.prof
