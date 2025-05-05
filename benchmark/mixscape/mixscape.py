@@ -14,6 +14,7 @@ else:
     n_obs = None
 
 adata = read_h5ad(input)
+print("Time until data was read: ", time.time() - start)
 
 # Mitigating confounding effects
 mixscape_identifier = Mixscape()
@@ -36,6 +37,12 @@ mixscape_identifier.mixscape(
     control="NT", 
     labels="gene_target", 
     layer="X_pert"
+)
+print("Time taken until mixscape done: ", time.time() - start)
+
+# Visualizing perturbation responses with Linear Discriminant Analysis (LDA)
+mixscape_identifier.lda(
+    adata=adata, control="NT", labels="gene_target"
 )
 
 print("Time taken entire script: ", time.time() - start)

@@ -90,4 +90,20 @@ eccite_upsampled <- RunMixscape(
   verbose = F,
   prtb.type = "KO")
 
+
+# Remove non-perturbed cells
+Idents(eccite_upsampled) <- "mixscape_class.global"
+sub <- subset(eccite_upsampled, idents = c("KO", "NT"))
+
+# run LDA to reduce the dimensionality of the data
+sub <- MixscapeLDA(
+  object = sub,
+  assay = "RNA",
+  pc.assay = "PRTB",
+  labels = "gene",
+  nt.label = "NT",
+  npcs = 10,
+  logfc.threshold = 0.25,
+  verbose = F)
+
 file.create(flag)
