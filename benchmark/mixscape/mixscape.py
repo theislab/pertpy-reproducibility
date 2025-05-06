@@ -8,6 +8,7 @@ import cProfile
 import io
 import pstats
 import time
+from pynndescent import NNDescent # otherwise, first import in perturbation_signature can distort its runtime if cluster is slow
 print("Importing libraries took: ", time.time() - start)
 
 # I/O
@@ -23,6 +24,7 @@ profiler.enable()
 
 start_data_read = time.time()
 adata = read_h5ad(input)
+adata.X = adata.X.toarray()
 print("Time until data was read: ", time.time() - start_data_read)
 
 # Mitigating confounding effects
