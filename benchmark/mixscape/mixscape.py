@@ -61,7 +61,7 @@ print("Time taken until lda done: ", time.time() - start_lda)
 profiler.disable()
 s = io.StringIO()
 ps = pstats.Stats(profiler, stream=s).sort_stats("cumtime")
-ps.dump_stats(filename="mixscape.prof")
+ps.dump_stats(filename=str(snakemake.wildcards.n_obs)+"_mixscape.prof")
 
 print("Time taken entire script: ", time.time() - start)
 
