@@ -55,7 +55,7 @@ rule all:
         expand("../results/pertspace_{n_obs}.flag", n_obs=grid[:-1]),
         # MIXSCAPE
         expand("../results/mixscape_{implementation}_{n_obs}.flag", 
-               n_obs=grid[:-1],
+               n_obs=grid,
                implementation=["pertpy", "original"]),
         # DIALOGUE
         expand("../results/dialogue_{implementation}_{n_obs}.flag", 
