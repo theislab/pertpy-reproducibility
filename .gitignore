@@ -162,11 +162,17 @@ cython_debug/
 data
 lightning_logs
 *.h5ad
+*.h5mu
+*.mtx
 *.pkl
 *.pickle
 .idea/
+.snakemake
 .snakemake
 benchmark/cache
 cache
 .Rdata
 .Rhistory
+*.flag
+*.benchmark.tsv
+*.prof

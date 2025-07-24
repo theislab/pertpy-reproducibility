@@ -1,10 +1,24 @@
 import time
+from pathlib import Path
 
 import blitzgsea as blitz
 import drug2cell as d2c
 import scanpy as sc
+import numpy as np
+
+# I/O
+if "snakemake" in locals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
+if n_obs:
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+
+adata.obs_names_make_unique()  # throws error with many cells
 
 start = time.time()
 
@@ -28,3 +42,6 @@ enrichment, plot_gsea_args = d2c.gsea(adata, targets=targets)
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

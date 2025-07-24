@@ -1,54 +1,71 @@
-import muon as mu
-import pertpy as pt
-import scanpy as sc
 import time
+start = time.time()
+from pathlib import Path
+from pertpy.tools import Mixscape
+from scanpy import AnnData, read_h5ad
 
-# Load dataset
-mdata = pt.dt.papalexi_2021()
+import cProfile
+import io
+import pstats
+import time
+from pynndescent import NNDescent # otherwise, first import in perturbation_signature can distort its runtime if cluster is slow
+print("Importing libraries took: ", time.time() - start)
 
-# Start time
-start_time = time.time()
+# I/O
+if "snakemake" in locals():
+    input = snakemake.input[0]
+    output = snakemake.output[0]
+else:
+    input = None
+    n_obs = None
 
-# Preprocessing
-# RNA
-sc.pp.highly_variable_genes(mdata["rna"], n_top_genes=2000, flavor='seurat_v3', subset=True)
-sc.pp.normalize_total(mdata["rna"])
-sc.pp.log1p(mdata["rna"])
-mdata["rna"].layers["scaled"] = mdata["rna"].X.copy()
-sc.pp.scale(mdata["rna"], layer="scaled")
+profiler = cProfile.Profile()
+profiler.enable()
 
-# Protein
-mu.prot.pp.clr(mdata["adt"])
-
-# Gene expression-based cell clustering UMAP
-sc.pp.pca(mdata["rna"], n_comps=50, layer="scaled")
-sc.pp.neighbors(mdata["rna"], metric="cosine")
-sc.tl.umap(mdata["rna"])
+start_data_read = time.time()
+adata = read_h5ad(input)
+adata.X = adata.X.toarray()
+print("Time until data was read: ", time.time() - start_data_read)
 
 # Mitigating confounding effects
-mixscape_identifier = pt.tl.Mixscape()
-mdata["rna"].X = mdata["rna"].X.toarray()
-mixscape_identifier.perturbation_signature(
-    mdata["rna"], "perturbation", "NT", split_by="replicate", n_neighbors=20, n_dims=40,
-)
+start_mixscape_init = time.time()
+mixscape_identifier = Mixscape()
+print("Time until mixscape was initialized: ", time.time() - start_mixscape_init)
 
-adata_pert = mdata["rna"].copy()
-adata_pert.X = adata_pert.layers["X_pert"]
-sc.pp.pca(adata_pert)
-sc.pp.neighbors(adata_pert, metric="cosine")
-sc.tl.umap(adata_pert)
+start_perturbation_signature = time.time()
+mixscape_identifier.perturbation_signature(
+    adata, 
+    "perturbation", 
+    "NT", 
+    split_by="replicate", 
+    n_neighbors=20, 
+    n_dims=40,
+)
+print("Time taken until perturbation signature done: ", time.time() - start_perturbation_signature)
+
+start_mixscape = time.time()
 
 # Identify cells with no detectable perturbation
 mixscape_identifier.mixscape(
-    adata=mdata["rna"], control="NT", labels="gene_target", layer="X_pert"
+    adata=adata, 
+    control="NT", 
+    labels="gene_target", 
+    layer="X_pert"
 )
+print("Time taken until mixscape done: ", time.time() - start_mixscape)
 
 # Visualizing perturbation responses with Linear Discriminant Analysis (LDA)
+start_lda = time.time()
 mixscape_identifier.lda(
-    adata=mdata["rna"], control="NT", labels="gene_target"
+    adata=adata, control="NT", labels="gene_target"
 )
+print("Time taken until lda done: ", time.time() - start_lda)
+profiler.disable()
+s = io.StringIO()
+ps = pstats.Stats(profiler, stream=s).sort_stats("cumtime")
+ps.dump_stats(filename=str(snakemake.wildcards.n_obs)+"_mixscape.prof")
 
+print("Time taken entire script: ", time.time() - start)
 
-# Compute and print elapsed time
-elapsed_time = time.time() - start_time
-print(f"Elapsed time: {elapsed_time} seconds")
+if output:
+    Path(output).touch()

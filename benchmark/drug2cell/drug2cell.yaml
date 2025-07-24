@@ -1,0 +1,12 @@
+name: drug2cell
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pytorch
+  - pip:
+      - drug2cell
+      - blitzgsea
+      - scanpy>=1.11.0  # needed for upsampling

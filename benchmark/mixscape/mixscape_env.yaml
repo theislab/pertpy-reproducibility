@@ -1,0 +1,18 @@
+name: mixscape_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base
+  - conda-forge::r-systemfonts
+  - conda-forge::libxml2
+  - conda-forge::r-seurat
+  - conda-forge::r-mixtools
+  - conda-forge::r-devtools
+  - conda-forge::r-ggplot2
+  - conda-forge::r-patchwork
+  - conda-forge::r-scales
+  - conda-forge::r-dplyr
+  - conda-forge::r-reshape2
+  - conda-forge::r-irkernel
+  - conda-forge::jupyter

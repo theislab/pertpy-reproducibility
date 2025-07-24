@@ -1,75 +1,331 @@
+"""
+Snakemake file for benchmarking the different tools in pertpy vs original implementations.
+Author: Stefan Peidli
+Last Update: 21-04-2025
+Run as: snakemake --use-conda --default-resources slurm_partition=bigmem slurm_constraint=turin slurm_account=huber
+"""
 
+# Importing necessary libraries
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version
 
+# Load configuration file
 min_version("8.0.0")
 conda: "../environments/snake_env.yaml"
 configfile: "../configuration/config.yaml"
+def increment_memory(base_memory):
+    def mem(wildcards, attempt):
+        return base_memory * (2 ** (attempt - 1))
+    return mem
+
+# Define global variables
 TEMPDIR = Path(config["TEMPDIR"])
+retries = 1
+n_repeats_benchmark = 4
+maxtime_min = 60 * 24 * 2  # in minutes
+base_memory_mb = 500000
+grid = [5000, 10000, 50000, 100000, 500000, 1000000]  # number of cells
 
 rule all:
     input:
-        expand("../results/augur_{n_sample}_{implementation}.csv", 
-               n_sample=[0, 1000, 5000, 10000, 50000, 100000, 500000, 1000000], 
-               implementation=["py", "r"]),
+        # AUGUR
+        expand("../results/augur_{implementation}_{n_obs}.flag", 
+               n_obs=grid, 
+               implementation=["pertpy", "original"]),
+        # GUIDE ASSIGNMENT
+        expand("../results/guide_assignment_{n_obs}.csv", 
+               n_obs=grid),
+        # CINEMAOT
+        expand("../results/cinemaot_{implementation}_{n_obs}.flag", 
+               n_obs=grid[:-1],
+               implementation=["pertpy", "original"]),
+        # DGE
+        expand("../results/dge_{n_obs}.flag", 
+               n_obs=grid),
+        # DRUG2CELL
+        expand("../results/drug2cell_{implementation}_{n_obs}.flag", 
+               n_obs=grid[:-1],
+               implementation=["pertpy", "original"]),
+        # SCCODA
+        expand("../results/sccoda_{implementation}_{n_obs}.flag", 
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
+        # PERTSPACE
+        expand("../results/pertspace_{n_obs}.flag", n_obs=grid[:-1]),
+        # MIXSCAPE
+        expand("../results/mixscape_{implementation}_{n_obs}.flag", 
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
+        # DIALOGUE
+        expand("../results/dialogue_{implementation}_{n_obs}.flag", 
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
+        # MILO
+        expand("../results/milo_{implementation}_{n_obs}.flag",
+               n_obs=grid,
+               implementation=["pertpy", "original"]),
 
 ## AUGUR
-rule augur_pertpy:
+rule augur_prepare_data:
     output:
-        "../results/augur_{n_sample}_py.csv",
+        h5ad=TEMPDIR / "augur_data_{n_obs}.h5ad"
+    conda: "../environments/pertpy_env.yaml"
+    resources:
+        mem_mb=64000,
+        runtime=60,
+    script: "../augur/augur_prepare_data.py"
+
+rule augur_pertpy:
+    input:
+        h5ad=TEMPDIR / "augur_data_{n_obs}.h5ad"
+    output:
+        "../results/augur_pertpy_{n_obs}.flag",
     conda: "../environments/pertpy_env.yaml"
     benchmark:
-        repeat("benchmarks/augur.{n_sample}.pertpy.benchmark.tsv", 3)
+        repeat("benchmarks/augur.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
     threads: 16
+    retries: retries
     resources:
-        mem_mb=32000,
-        time=60
-    script: "../scripts/augur.py"
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min,
+    script: "../augur/augur.py"
 
 rule augur_original:
     output:
-        out_sim = "../results/augur_{n_sample}_r.csv",
+        "../results/augur_original_{n_obs}.flag",
     conda: "augur_env"  # "../environments/augur_env.yaml"
     benchmark:
-        repeat("benchmarks/augur.{n_sample}.original.benchmark.tsv", 3)
+        repeat("benchmarks/augur.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
     threads: 16
+    retries: retries
     resources:
-        mem_mb=32000,
-        time=60
-    script: "../scripts/augur.R"
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../augur/augur.R"
 
 ## MILO
-rule milo_convert_data:
-    input:
-        h5ad = "../data/milo.h5ad"
+rule milo_prepare_data:
     output:
-        rds = "../data/milo.rds"
-    conda: "../environments/milo_env.yaml"
-    script: "../scripts/milo_convert_data.ipynb"
+        h5ad=TEMPDIR / "milo_data_{n_obs}.h5ad",
+        mtx=TEMPDIR / "milo_data_{n_obs}.mtx",
+        obs=TEMPDIR / "milo_obs_{n_obs}.csv",
+        obsm_scvi=TEMPDIR / "milo_obsm_scvi_{n_obs}.csv",
+        obsm_umap=TEMPDIR / "milo_obsm_umap_{n_obs}.csv",
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    conda: "../environments/pertpy_env.yaml"
+    script: "../milo/milo_prepare.py"
 
-# rule milo:
-#     output:
-#         "../results/milo.csv"
-#     log:
-#         notebook="logs/notebooks/processed_augur_compare.ipynb"
-#     conda: "../environments/milo_env.yaml"
-#     notebook: "../scripts/milo_benchmark.ipynb"
+rule milo_py:
+    input:
+        h5ad=TEMPDIR / "milo_data_{n_obs}.h5ad",
+    output:
+        "../results/milo_pertpy_{n_obs}.flag"
+    conda: "../milo/milo_env.yaml"
+    benchmark:
+        repeat("benchmarks/milo.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    threads: 16
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../milo/milo.py"
+
+rule milo_r:
+    output:
+        "../results/milo_original_{n_obs}.flag"
+    conda: "milo_env" # "../environments/milo_env.yaml"
+    benchmark:
+        repeat("benchmarks/milo.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    threads: 16
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../milo/milo.R"
+
+## GUIDE ASSIGNMENT
+rule guide_assignment:
+    output:
+        "../results/guide_assignment_{n_obs}.csv"
+    conda: "pertpy_dev"# "../environments/pertpy_env.yaml" # Needs current dev version
+    benchmark:
+        repeat("benchmarks/guide_assignment.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../guide_assignment/guide_assignment.py"
+
+## CINEMAOT
+rule cinemaot_pertpy:
+    output:
+        "../results/cinemaot_pertpy_{n_obs}.flag"
+    conda: "../environments/pertpy_env.yaml"
+    benchmark:
+        repeat("benchmarks/cinemaot.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../cinema_ot/cinema_ot_new.py"
+
+rule cinemaot_original:
+    output:
+        "../results/cinemaot_original_{n_obs}.flag"
+    conda: "../cinema_ot/cinema_ot.yaml"
+    benchmark:
+        repeat("benchmarks/cinemaot.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../cinema_ot/cinema_ot_old.py"
+
+## PERTSPACE
+rule pertspace:
+    output:
+        "../results/pertspace_{n_obs}.flag"
+    conda: "../environments/pertpy_env.yaml"
+    benchmark:
+        repeat("benchmarks/pert_space.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../pert_space/pert_space.py"
+
+## DGE
+rule dge:
+    output:
+        "../results/dge_{n_obs}.flag"
+    conda: "pertpy_dev"  # "dge_env.yaml"
+    benchmark:
+        repeat("benchmarks/dge.{n_obs}.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../dge/dge.py"
 
 ## MIXSCAPE
-# rule mixscape:
-#     output:
-#         "../results/mixscape.csv"
-#     log:
-#         notebook="logs/notebooks/processed_mixscape.ipynb"
-#     conda: "../environments/mixscape_env.yaml"
-#     notebook: "../scripts/mixscape_compare.ipynb"
+rule mixscape_prepare_data:
+    output:
+        h5ad=TEMPDIR / "mixscape_data_{n_obs}.h5ad"
+    conda: "../environments/pertpy_env.yaml"
+    resources:
+        mem_mb=64000,
+        runtime=60,
+    script: "../mixscape/mixscape_prepare_data.py"
+
+rule mixscape_pertpy:
+    input:
+        h5ad=TEMPDIR / "mixscape_data_{n_obs}.h5ad"
+    output:
+        "../results/mixscape_pertpy_{n_obs}.flag"
+    conda: "../environments/pertpy_env.yaml"
+    benchmark:
+        repeat("benchmarks/mixscape.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../mixscape/mixscape.py"
+
+rule mixscape_original:
+    output:
+        "../results/mixscape_original_{n_obs}.flag"
+    conda: "mixscape_env" # "../mixscape/mixscape.yaml"
+    benchmark:
+        repeat("benchmarks/mixscape.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../mixscape/mixscape.R"
+
+## DRUG2CELL
+rule drug2cell_pertpy:
+    output:
+        "../results/drug2cell_pertpy_{n_obs}.flag"
+    conda: "../environments/pertpy_env.yaml"
+    benchmark:
+        repeat("benchmarks/drug2cell.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../drug2cell/drug2cell_new.py"
+
+rule drug2cell_original:
+    output:
+        "../results/drug2cell_original_{n_obs}.flag"
+    conda: "../drug2cell/drug2cell.yaml"  #"pertpy_dev"
+    benchmark:
+        repeat("benchmarks/drug2cell.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../drug2cell/drug2cell_old.py"
 
 ## SCCODA
-# rule sccoda:
-#     output:
-#         "../results/sccoda.csv"
-#     log:
-#         notebook="logs/notebooks/processed_sccoda.ipynb"
-#     conda: "../environments/sccoda_env.yaml"
-#     notebook: "../scripts/sccoda_compare.ipynb"
+rule sccoda_pertpy:
+    output:
+        "../results/sccoda_pertpy_{n_obs}.flag"
+    conda: "sccoda-old"#"../sccoda/sccoda.yaml"
+    benchmark:
+        repeat("benchmarks/sccoda.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../sccoda/sccoda_new.py"
+
+rule sccoda_original:
+    output:
+        "../results/sccoda_original_{n_obs}.flag"
+    conda: "sccoda-old"#"../sccoda/sccoda.yaml"
+    benchmark:
+        repeat("benchmarks/sccoda.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../sccoda/sccoda_old.py"
+
+## DIALOGUE
+rule dialogue_get_rds:
+    output:
+        rA=TEMPDIR / "dialogue/test.example.rds"
+    shell:
+        "wget https://github.com/livnatje/DIALOGUE/blob/master/Data/test.example.rds?raw=true -O {output}"
+
+rule dialogue_pertpy:
+    output:
+        "../results/dialogue_pertpy_{n_obs}.flag"
+    conda: "pertpy_dev"
+    benchmark:
+        repeat("benchmarks/dialogue.{n_obs}.pertpy.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../dialogue/dialogue.py"
+
+rule dialogue_original:
+    input:
+        rA=TEMPDIR / "dialogue/test.example.rds"
+    output:
+        "../results/dialogue_original_{n_obs}.flag"
+    conda: "dialogue_env"#"../dialogue/dialogue_env.yaml"  # needs manual installation
+    benchmark:
+        repeat("benchmarks/dialogue.{n_obs}.original.benchmark.tsv", n_repeats_benchmark)
+    retries: retries
+    resources:
+        mem_mb=increment_memory(base_memory_mb),
+        runtime=maxtime_min
+    script: "../dialogue/dialogue.R"

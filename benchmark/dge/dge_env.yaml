@@ -1,0 +1,12 @@
+name: dge
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pandas=2.2.3
+  - conda-forge::decoupler-py
+  - conda-forge::scipy
+  - pip
+  - pip:
+      - pertpy[de]==0.10.0
+      - scanpy>=1.11.0  # needed for upsampling

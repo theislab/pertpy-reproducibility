@@ -1,22 +1,29 @@
 library('DIALOGUE')
 
-rA<-readRDS("test.example.rds")
+# I/O
+rA <- readRDS(snakemake@input$rA)
 
-# save the PCA components
-write.csv(rA$A@X, file = paste0("./cca_output/", "X_pca_A.csv"))
-write.csv(rA$B@X, file = paste0("./cca_output/", "X_pca_B.csv"))
-write.csv(rA$C@X, file = paste0("./cca_output/", "X_pca_C.csv"))
-
-param <- DLG.get.param(k = 3,
-                       results.dir = "results/",
-                       conf = c("gender","sample.quality","cellQ"), # Confounding factors
-                       pheno = "pathology") # Phenotype (optional)
-
-res<-DIALOGUE.run(rA = rA, # list of cell.type objects
-                  main = "toyExample",
-                  param = param)
-
-# save the MCP scores for comparison in python
-for (ct in names(res$cca.scores)) {
-   write.csv(res$cca.scores[[ct]], file = paste0("./cca_output/", ct, "_cca_scores.csv"))
+# Subsample cells
+n_cells <- as.integer(snakemake@wildcards$n_obs)
+set.seed(123)
+for (i in 1:length(rA)) {
+    cell_indices <- sample(seq_along(rA[[i]]@cells), n_cells, replace = TRUE)
+    temp = rA[[i]]
+    temp@cells <- rA[[i]]@cells[cell_indices]
+    temp@cellQ <- rA[[i]]@cellQ[cell_indices]
+    temp@tpm <- rA[[i]]@tpm[, cell_indices]
+    temp@X <- rA[[i]]@X[cell_indices, ]
+    temp@samples <- rA[[i]]@samples[cell_indices]
+    temp@metadata <- rA[[i]]@metadata[cell_indices, ]
+    rA[[i]] <- temp
 }
+
+# Create the directory if it doesn't exist
+path <- paste0("/scratch/peidli/pertpy_benchmark/dialogue/ncells_", snakemake@wildcards$n_obs)
+if (!dir.exists(path)) {
+  dir.create(path, recursive = TRUE)
+}
+param <- DLG.get.param(k = 3, conf = c("cellQ"), results.dir = path)
+res <- DIALOGUE.run(rA = rA, main = "toyExample", param = param)
+
+file.create(snakemake@output[[1]])

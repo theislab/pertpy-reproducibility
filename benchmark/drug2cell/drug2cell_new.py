@@ -1,10 +1,24 @@
 import time
+from pathlib import Path
 
 import blitzgsea as blitz
 import pertpy as pt
 import scanpy as sc
+import numpy as np
+
+# I/O
+if "snakemake" in locals():
+    output = snakemake.output[0]
+    n_obs = int(snakemake.wildcards.n_obs)
+else:
+    output = None
+    n_obs = None
 
 adata = sc.datasets.pbmc3k_processed()
+if n_obs:
+    sc.pp.sample(adata, n=n_obs, rng=0, replace=True)
+
+adata.obs_names_make_unique()  # throws error with many cells
 
 pt_chembl = pt.md.Drug()
 pt_chembl.annotate(adata)
@@ -27,3 +41,6 @@ enrichment = pt_enricher.gsea(adata, targets=targets)
 
 runtime = time.time() - start
 print(f"Runtime: {runtime:.2f} seconds")
+
+if output:
+    Path(output).touch()

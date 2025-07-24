@@ -13,3 +13,4 @@ dependencies:
       - toytree
       - arviz
       - ete3
+      - scanpy==1.11.0  # needed for upsampling
