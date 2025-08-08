@@ -15,3 +15,4 @@ The `benchmark` folder has individual tool specific subfolders that each contain
 ## Run time
 
 The `benchmark` folder further contains all scripts that were run using a Snakemake pipeline to evaluate the runtime requirements of the tools.
+In particular, the `visualize_benchmark_results.ipynb` notebook aggregates all results from the `benchmarking_table.csv` which is stored in the tables folder to create the figure.
